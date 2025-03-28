@@ -36,7 +36,7 @@ dependencies:
   # Navegação
   go_router: ^14.0.4
   # Firebase
-  firebase_core: ^2.18.0
+  firebase_core: ^2.32.0
   firebase_auth: ^4.11.1
   cloud_firestore: ^4.13.0
   # Http para chamadas de API

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_recommender/core/utils/firebase_config.dart';
+import 'package:movie_recommender/presentation/pages/auth/forgot_password_page.dart';
 import 'package:movie_recommender/presentation/pages/auth/login_page.dart';
 import 'package:movie_recommender/presentation/pages/auth/register_page.dart';
 
@@ -20,6 +21,10 @@ final router = GoRouter(
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterPage(),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) => const ForgotPasswordPage(),
     ),
   ],
 );

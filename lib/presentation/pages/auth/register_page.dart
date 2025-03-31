@@ -39,7 +39,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Registro realizado com sucesso!')),
           );
-          context.go('/preferences'); // Redireciona para tela de preferências
+          context.go('/login');
         }
       } on FirebaseAuthException catch (e) {
         if (mounted) {

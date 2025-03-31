@@ -9,14 +9,12 @@ import 'package:movie_recommender/presentation/pages/auth/register_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseConfig.initialize();
-
-  final auth = FirebaseAuth.instance;
-  final initialRoute = auth.currentUser == null ? '/login' : '/home';
-
   runApp(ProviderScope(child: App()));
 }
 
 final router = GoRouter(
+  initialLocation:
+      FirebaseAuth.instance.currentUser == null ? '/login' : '/home',
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
     GoRoute(

@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:movie_recommender/pages/add_preferences_page.dart';
 import 'package:movie_recommender/pages/home_page.dart';
 import 'package:movie_recommender/pages/login_page.dart';
+import 'package:movie_recommender/pages/recommendations_page.dart';
 import 'package:movie_recommender/pages/register_page.dart';
 import 'firebase_options.dart';
 
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomePage(),
         '/preferences/add': (context) => const AddPreferencesPage(),
+        '/recommendations': (context) => const RecommendationsPage(),
       },
     );
   }

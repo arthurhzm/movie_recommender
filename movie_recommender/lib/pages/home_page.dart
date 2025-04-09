@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:movie_recommender/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,23 +13,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final db = FirebaseFirestore.instance;
   final userId = FirebaseAuth.instance.currentUser?.uid;
-  Map<String, dynamic> userPreferences = {};
+  final UserService _userService = UserService();
+  late Future<Map<String, dynamic>> userPreferences;
 
-  Future<Map<String, dynamic>> _getUserPreferences() async {
-    try {
-      return await db.collection('user_preferences').doc(userId).get().then((
-        doc,
-      ) {
-        if (doc.exists) {
-          return doc.data()!;
-        } else {
-          return {};
-        }
-      });
-    } catch (e) {
-      print('Error getting user preferences: $e');
-      return {};
-    }
+  @override
+  void initState() {
+    super.initState();
+    userPreferences = _userService.getUserPreferences();
   }
 
   @override
@@ -49,7 +38,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: _getUserPreferences(),
+        future: userPreferences,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -61,7 +50,6 @@ class _HomePageState extends State<HomePage> {
             });
             return const Center(child: Text('Redirecting...'));
           } else {
-            userPreferences = snapshot.data!;
             return Center(
               child: ElevatedButton(
                 onPressed: () {

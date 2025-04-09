@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -63,10 +64,10 @@ class _HomePageState extends State<HomePage> {
             userPreferences = snapshot.data!;
             return Center(
               child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/recommendations');
-              },
-              child: const Text('Me recomende filmes'),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/recommendations');
+                },
+                child: const Text('Me recomende filmes'),
               ),
             );
           }

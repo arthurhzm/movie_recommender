@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_recommender/components/drawer_component.dart';
 
 class AddPreferencesPage extends StatefulWidget {
   const AddPreferencesPage({super.key});
@@ -81,6 +82,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DrawerComponent(),
       appBar: AppBar(title: const Text('Suas Preferências')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

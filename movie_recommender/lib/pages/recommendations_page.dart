@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
 class RecommendationsPage extends StatefulWidget {
@@ -42,18 +43,22 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   }
 
   String _buildPrompt(Map<String, dynamic> preferences) {
-    final favoriteGenres = preferences['favoriteGenres']?.join(', ') ?? 'Nenhum';
-    final favoriteDirectors = preferences['favoriteDirectors']?.join(', ') ?? 'Nenhum';
-    final favoriteActors = preferences['favoriteActors']?.join(', ') ?? 'Nenhum';
+    final favoriteGenres =
+        preferences['favoriteGenres']?.join(', ') ?? 'Nenhum';
+    final favoriteDirectors =
+        preferences['favoriteDirectors']?.join(', ') ?? 'Nenhum';
+    final favoriteActors =
+        preferences['favoriteActors']?.join(', ') ?? 'Nenhum';
     final minReleaseYear = preferences['minReleaseYear'] ?? 'Não especificado';
     final maxDuration = preferences['maxDuration'] ?? 'Não especificado';
-    final acceptAdultContent = preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
+    final acceptAdultContent =
+        preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
 
     return '''
       Você é um cinéfilo especialista em recomendar filmes personalizados. 
       
       Contexto do usuário:
-      - Gêneros preferidos: $favoriteGenres
+      - Gêneros preferidos: $favoriteGenres 
       - Diretores favoritos: $favoriteDirectors
       - Atores preferidos: $favoriteActors
       - Período preferido: Filmes após $minReleaseYear
@@ -80,6 +85,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DrawerComponent(),
       appBar: AppBar(
         title: const Text('Recommendations'),
         actions: [

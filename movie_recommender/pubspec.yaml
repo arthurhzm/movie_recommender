@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^5.6.6
   flutter_dotenv: ^5.2.1
   google_generative_ai: ^0.4.6
+  tmdb_api: ^2.2.3
 
 dev_dependencies:
   flutter_test:

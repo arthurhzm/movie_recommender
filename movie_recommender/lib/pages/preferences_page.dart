@@ -62,7 +62,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/create_preferences');
+          Navigator.pushNamed(context, '/preferences/add');
         },
         child: const Icon(Icons.add),
         tooltip: 'Adicionar Preferências',

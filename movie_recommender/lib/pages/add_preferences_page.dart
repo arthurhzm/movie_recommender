@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/services/user_service.dart';
 
 class AddPreferencesPage extends StatefulWidget {
   const AddPreferencesPage({super.key});
@@ -11,8 +12,8 @@ class AddPreferencesPage extends StatefulWidget {
 }
 
 class _AddPreferencesPageState extends State<AddPreferencesPage> {
-  final db = FirebaseFirestore.instance;
-  final userId = FirebaseAuth.instance.currentUser?.uid;
+  final UserService _userService = UserService();
+  late Future<Map<String, dynamic>> userPreferences;
   final _formKey = GlobalKey<FormState>();
   final List<String> _selectedGenres = [];
   final List<String> _selectedDirectors = [];
@@ -20,6 +21,40 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   int _selectedYear = 2000;
   int _selectedDuration = 180;
   bool _adultContent = false;
+
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+  final db = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    userPreferences = _userService.getUserPreferences();
+
+    userPreferences
+        .then((preferences) {
+          if (preferences.isNotEmpty) {
+            setState(() {
+              _selectedGenres.addAll(
+                List<String>.from(preferences['favoriteGenres'] ?? []),
+              );
+              _selectedDirectors.addAll(
+                List<String>.from(preferences['favoriteDirectors'] ?? []),
+              );
+              _selectedActors.addAll(
+                List<String>.from(preferences['favoriteActors'] ?? []),
+              );
+              _selectedYear = preferences['minReleaseYear'] ?? _selectedYear;
+              _selectedDuration =
+                  preferences['maxDuration'] ?? _selectedDuration;
+              _adultContent =
+                  preferences['acceptAdultContent'] ?? _adultContent;
+            });
+          }
+        })
+        .catchError((error) {
+          debugPrint('Error loading user preferences: $error');
+        });
+  }
 
   //FIXME - Trocar por API depois
   final List<String> _allGenres = [

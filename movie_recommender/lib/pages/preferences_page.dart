@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
 class PreferencesPage extends StatefulWidget {
@@ -23,6 +24,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DrawerComponent(),
       appBar: AppBar(title: const Text('Preferências')),
       body: FutureBuilder<Map<String, dynamic>>(
         future: userPreferences,

@@ -13,7 +13,7 @@ Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load(fileName: ".env");
-  runApp(const MyApp());
+  runApp(const MyApp());  
 }
 
 class MyApp extends StatelessWidget {

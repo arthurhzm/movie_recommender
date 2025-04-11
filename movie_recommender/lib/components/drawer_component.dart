@@ -1,7 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_recommender/pages/login_page.dart';
 
-class DrawerComponent extends StatelessWidget {
+class DrawerComponent extends StatefulWidget {
   const DrawerComponent({super.key});
+
+  @override
+  State<DrawerComponent> createState() => _DrawerComponentState();
+}
+
+class _DrawerComponentState extends State<DrawerComponent> {
+  final _auth = FirebaseAuth.instance;
+
+  void _signOut() async {
+    await _auth.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +41,16 @@ class DrawerComponent extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.door_back_door),
+            title: const Text('Preferências'),
+            onTap: () {
+              Navigator.pushNamed(context, '/preferences');
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sair'),
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: _signOut,
           ),
         ],
       ),

@@ -14,10 +14,7 @@ class _LoginPageState extends State<LoginPage> {
 
 
   void _signIn() async {
-  print(_emailController.text.trim());
-    print("alo???");
     try {
-      print("33333");
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),

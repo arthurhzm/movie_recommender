@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
 class AddPreferencesPage extends StatefulWidget {
@@ -13,6 +14,7 @@ class AddPreferencesPage extends StatefulWidget {
 
 class _AddPreferencesPageState extends State<AddPreferencesPage> {
   final UserService _userService = UserService();
+  final TmdbProvider _tmdbProvider = TmdbProvider();
   late Future<Map<String, dynamic>> userPreferences;
   final _formKey = GlobalKey<FormState>();
   final List<String> _selectedGenres = [];
@@ -21,6 +23,8 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   int _selectedYear = 2000;
   int _selectedDuration = 180;
   bool _adultContent = false;
+  late Future<List<Map<String, dynamic>>> _popularDirectors;
+  late Future<List<Map<String, dynamic>>> _allGenres;
 
   final userId = FirebaseAuth.instance.currentUser?.uid;
   final db = FirebaseFirestore.instance;
@@ -54,28 +58,41 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
         .catchError((error) {
           debugPrint('Error loading user preferences: $error');
         });
+
+    _popularDirectors = _tmdbProvider.getDirectors();
+
+    _popularDirectors
+        .then((directors) {
+          // debugPrint('Directors: $directors');
+        })
+        .catchError((error) {
+          // debugPrint('Error loading directors: $error');
+        });
+    
+    _allGenres = _tmdbProvider.getMovieGenders();
+
+    _allGenres
+        .then((genres) {
+          // debugPrint('Genres: $genres');
+        })
+        .catchError((error) {
+          // debugPrint('Error loading genres: $error');
+        });
+    
+
   }
 
   //FIXME - Trocar por API depois
-  final List<String> _allGenres = [
-    'Ação',
-    'Comédia',
-    'Drama',
-    'Ficção Científica',
-    'Terror',
-    'Romance',
-    'Animação',
-    'Documentário',
-  ];
-
-  //FIXME - Trocar por API depois
-  final List<String> _popularDirectors = [
-    'Christopher Nolan',
-    'Quentin Tarantino',
-    'Steven Spielberg',
-    'Martin Scorsese',
-    'Greta Gerwig',
-  ];
+  // final List<String> _allGenres = [
+  //   'Ação',
+  //   'Comédia',
+  //   'Drama',
+  //   'Ficção Científica',
+  //   'Terror',
+  //   'Romance',
+  //   'Animação',
+  //   'Documentário',
+  // ];
 
   Future<void> _savePreferences() async {
     if (_selectedGenres.isEmpty) {
@@ -130,24 +147,40 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                 'Seus gêneros favoritos:',
                 style: TextStyle(fontSize: 16),
               ),
-              Wrap(
-                spacing: 8,
-                children:
-                    _allGenres.map((genre) {
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _allGenres,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text(
+                      'Erro ao carregar gêneros: ${snapshot.error}',
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('Nenhum gênero encontrado.');
+                  }
+
+                  final genres = snapshot.data!;
+                  return Wrap(
+                    spacing: 8,
+                    children: genres.map((genre) {
+                      final genreName = genre['name'] ?? 'Desconhecido';
                       return FilterChip(
-                        label: Text(genre),
-                        selected: _selectedGenres.contains(genre),
+                        label: Text(genreName),
+                        selected: _selectedGenres.contains(genreName),
                         onSelected: (selected) {
                           setState(() {
                             if (selected) {
-                              _selectedGenres.add(genre);
+                              _selectedGenres.add(genreName);
                             } else {
-                              _selectedGenres.remove(genre);
+                              _selectedGenres.remove(genreName);
                             }
                           });
                         },
                       );
                     }).toList(),
+                  );
+                },
               ),
 
               const SizedBox(height: 24),
@@ -155,24 +188,42 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                 'Diretores favoritos:',
                 style: TextStyle(fontSize: 16),
               ),
-              Wrap(
-                spacing: 8,
-                children:
-                    _popularDirectors.map((director) {
-                      return FilterChip(
-                        label: Text(director),
-                        selected: _selectedDirectors.contains(director),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedDirectors.add(director);
-                            } else {
-                              _selectedDirectors.remove(director);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _popularDirectors,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text(
+                      'Erro ao carregar diretores: ${snapshot.error}',
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('Nenhum diretor encontrado.');
+                  }
+
+                  final directors = snapshot.data!;
+                  return Wrap(
+                    spacing: 8,
+                    children:
+                        directors.map((director) {
+                          final directorName =
+                              director['name'] ?? 'Desconhecido';
+                          return FilterChip(
+                            label: Text(directorName),
+                            selected: _selectedDirectors.contains(directorName),
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedDirectors.add(directorName);
+                                } else {
+                                  _selectedDirectors.remove(directorName);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                  );
+                },
               ),
 
               const SizedBox(height: 24),

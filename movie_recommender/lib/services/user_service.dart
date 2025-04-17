@@ -22,4 +22,20 @@ class UserService {
       return {};
     }
   }
+
+  Future<List<Map<String, dynamic>>> getUserSwipes() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    try {
+      return await _db
+          .collection('user_swipes')
+          .where('userId', isEqualTo: userId)
+          .get()
+          .then((snapshot) {
+            return snapshot.docs.map((doc) => doc.data()).toList();
+          });
+    } catch (e) {
+      print('Error getting user swipes: $e');
+      return [];
+    }
+  }
 }

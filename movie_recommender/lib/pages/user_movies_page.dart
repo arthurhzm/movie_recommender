@@ -21,6 +21,7 @@ class _UserMoviesPageState extends State<UserMoviesPage> {
         .then((swipes) {
           setState(() {
             userSwipes = swipes;
+            print(userSwipes);
           });
         })
         .catchError((error) {
@@ -33,6 +34,19 @@ class _UserMoviesPageState extends State<UserMoviesPage> {
   Widget build(BuildContext context) {
     if (userSwipes == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (userSwipes!.isEmpty) {
+      return Scaffold(
+        drawer: const DrawerComponent(),
+        appBar: AppBar(title: const Text('Meus filmes'), elevation: 0),
+        body: const Center(
+          child: Text(
+            'Você ainda não avaliou nenhum filme',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
     }
 
     // Process swipes to eliminate duplicates and organize by movie title

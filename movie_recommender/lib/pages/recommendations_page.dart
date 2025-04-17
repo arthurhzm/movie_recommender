@@ -266,7 +266,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
               heroTag: 'dislike',
               onPressed: () => _handleSwipe('dislike'),
               backgroundColor: Colors.red,
-              child: const Icon(Icons.close, size: 30),
+              child: const Icon(Icons.thumb_down, size: 30),
             ),
             FloatingActionButton(
               heroTag: 'super-like',
@@ -278,7 +278,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
               heroTag: 'like',
               onPressed: () => _handleSwipe('like'),
               backgroundColor: Colors.green,
-              child: const Icon(Icons.favorite, size: 30),
+              child: const Icon(Icons.thumb_up, size: 30),
             ),
           ],
         ),

@@ -48,6 +48,13 @@ class _DrawerComponentState extends State<DrawerComponent> {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.movie),
+            title: const Text('Meus Filmes'),
+            onTap: () {
+              Navigator.pushNamed(context, '/user_movies');
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Sair'),
             onTap: _signOut,

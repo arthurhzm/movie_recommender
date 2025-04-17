@@ -38,4 +38,21 @@ class UserService {
       return [];
     }
   }
+
+  Future<void> deleteSwipe(String movieTitle) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    try {
+      final swipes =
+          await _db
+              .collection('user_swipes')
+              .where('userId', isEqualTo: userId)
+              .where('movieTitle', isEqualTo: movieTitle)
+              .get();
+      for (var doc in swipes.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      print('Error deleting swipe: $e');
+    }
+  }
 }

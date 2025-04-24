@@ -123,6 +123,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       - Filmes rejeitados: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['movieTitle']).join(', ')}
       - Filmes super curtidos: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['movieTitle']).join(', ')}
 
+      Feedback detalhado:
+      - Curtidas: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['detailedFeedback']).join(', ')}
+      - Rejeitadas: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['detailedFeedback']).join(', ')}
+      - Super curtidas: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['detailedFeedback']).join(', ')}
+
       Regras:
       1. Priorize gêneros curtidos
       2. Evite gêneros rejeitados
@@ -143,8 +148,17 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       'movieTitle': currentMovie['title'],
       'action': action,
       'genres': currentMovie['genres'],
+      'detailedFeedback': "",
       'timestamp': FieldValue.serverTimestamp(),
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Avaliação recebida! Caso queira fornecer mais detalhes e melhorar as recomendações, acesse "Meus filmes" e clique no filme desejado',
+        ),
+      ),
+    );
 
     setState(() {
       userSwipes = _userService.getUserSwipes();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/components/movie_feedback_component.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
 class UserMoviesPage extends StatefulWidget {
@@ -21,7 +22,6 @@ class _UserMoviesPageState extends State<UserMoviesPage> {
         .then((swipes) {
           setState(() {
             userSwipes = swipes;
-            print(userSwipes);
           });
         })
         .catchError((error) {
@@ -49,11 +49,10 @@ class _UserMoviesPageState extends State<UserMoviesPage> {
       );
     }
 
-    // Process swipes to eliminate duplicates and organize by movie title
     final Map<String, Map<String, dynamic>> uniqueMovies = {};
     for (var swipe in userSwipes!) {
       final movieTitle = swipe['movieTitle'] as String;
-      // Keep only the latest rating for each movie
+
       if (!uniqueMovies.containsKey(movieTitle) ||
           (swipe['timestamp'].seconds >
               uniqueMovies[movieTitle]!['timestamp'].seconds)) {
@@ -63,7 +62,7 @@ class _UserMoviesPageState extends State<UserMoviesPage> {
 
     final List<Map<String, dynamic>> processedSwipes =
         uniqueMovies.values.toList();
-    // Sort by timestamp (most recent first)
+
     processedSwipes.sort(
       (a, b) => b['timestamp'].seconds.compareTo(a['timestamp'].seconds),
     );
@@ -87,6 +86,21 @@ class _UserMoviesPageState extends State<UserMoviesPage> {
               borderRadius: BorderRadius.circular(12.0),
             ),
             child: ListTile(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: MovieFeedbackComponent(
+                        movieTitle: movie['movieTitle'],
+                      ),
+                    );
+                  },
+                );
+              },
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
                 vertical: 8.0,

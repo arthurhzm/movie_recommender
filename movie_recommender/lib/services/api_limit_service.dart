@@ -3,11 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ApiUsageService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<bool> canMakeRequest(String userId) async {
+  Future<Map<String, Object>> canMakeRequest(String userId) async {
     final docRef = _firestore.collection('api_usage').doc(userId);
 
     try {
-      return await _firestore.runTransaction<bool>((transaction) async {
+      return await _firestore.runTransaction<Map<String, Object>>((
+        transaction,
+      ) async {
         final doc = await transaction.get(docRef);
         final now = DateTime.now();
 
@@ -24,11 +26,11 @@ class ApiUsageService {
         final lastRequest = (data['lastRequest'] as Timestamp).toDate();
         if (now.difference(lastRequest).inMinutes < 1 &&
             data['minuteCount'] >= 6) {
-          return false;
+          return {"success": false, "reason": "MINUTE_COUNT"};
         }
 
         if (data['dailyCount'] >= 60) {
-          return false;
+          return {"success": false, "reason": "DAILY_COUNT"};
         }
 
         transaction.set(docRef, {
@@ -40,11 +42,11 @@ class ApiUsageService {
           'lastRequest': Timestamp.fromDate(now),
         });
 
-        return true;
+        return {"success": true, "reason": ""};
       });
     } catch (e) {
       print("Ocorreu um erro");
-      return false;
+      return {"success": false, "reason": "ERROR"};
     }
   }
 }

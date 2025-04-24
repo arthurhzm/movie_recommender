@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/services/api_limit_service.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
 class RecommendationsPage extends StatefulWidget {
@@ -17,6 +19,7 @@ class RecommendationsPage extends StatefulWidget {
 
 class _RecommendationsPageState extends State<RecommendationsPage> {
   final List<Map<String, dynamic>> _movies = [];
+  final userId = FirebaseAuth.instance.currentUser?.uid;
   int _currentIndex = 0;
   bool _isLoading = true;
   String? _errorMessage;
@@ -42,6 +45,48 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   }
 
   Future<void> _loadRecommendations() async {
+    if (userId == null) return;
+    final canRequest = await ApiUsageService().canMakeRequest(userId!);
+
+    if (canRequest['success'] == false) {
+      String message = 'Não foi possível fazer a requisição.';
+
+      if (canRequest['reason'] == 'DAILY_COUNT') {
+        message =
+            'Você atingiu o limite de recomendações para hoje. Volte amanhã para descobrir mais filmes!';
+      } else if (canRequest['reason'] == 'MINUTE_COUNT') {
+        message =
+            'Você atingiu o limite de solicitações por minuto. Aguarde um momento e tente novamente.';
+      }
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => AlertDialog(
+              title: Text(
+                canRequest['reason'] == 'DAILY_COUNT'
+                    ? 'Limite diário atingido'
+                    : 'Muitas solicitações',
+              ),
+              content: Text(message),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Entendi'),
+                ),
+              ],
+            ),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
       final preferences = await userPreferences;
       await getMovieRecommendation(preferences);

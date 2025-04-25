@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -98,19 +99,126 @@ class _MovieFeedbackComponentState extends State<MovieFeedbackComponent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.movieTitle)),
-      body: Center(
-        child: Column(
-          children: [
-            TextField(
-              controller: _feedbackController,
-              decoration: const InputDecoration(
-                labelText: 'Dê o seu melhor feedback',
+      appBar: AppBar(
+        title: Text(widget.movieTitle),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+      ),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : FutureBuilder<List<Map<String, dynamic>>>(
+                future: TmdbProvider().searchMoviesByTitle(widget.movieTitle),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return _buildFeedbackForm(null);
+                  }
+
+                  final movieData = snapshot.data!.first;
+                  return _buildFeedbackForm(movieData);
+                },
+              ),
+    );
+  }
+
+  Widget _buildFeedbackForm(Map<String, dynamic>? movieData) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (movieData != null && movieData['poster_path'] != null)
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  movieData['poster_url'],
+                  height: 300,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      height: 300,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value:
+                              loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const SizedBox(
+                      height: 300,
+                      child: Center(child: Icon(Icons.error)),
+                    );
+                  },
+                ),
               ),
             ),
-            ElevatedButton(onPressed: _saveFeedback, child: Text('Avaliar')),
-          ],
-        ),
+          const SizedBox(height: 20),
+          if (movieData != null &&
+              movieData['overview'] != null &&
+              movieData['overview'].toString().isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Sinopse', style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 8),
+                Text(
+                  movieData['overview'],
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          Text(
+            'Avalie o filme:',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _feedbackController,
+            decoration: InputDecoration(
+              labelText: 'Dê o seu melhor feedback',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              filled: true,
+              fillColor: Theme.of(context).colorScheme.surface,
+            ),
+            maxLines: 5,
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _saveFeedback,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child:
+                  _isLoading
+                      ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                      : const Text('Enviar Avaliação'),
+            ),
+          ),
+        ],
       ),
     );
   }

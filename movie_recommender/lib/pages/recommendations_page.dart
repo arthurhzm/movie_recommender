@@ -120,7 +120,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
             if (details.isNotEmpty) {
               movie.addAll(details[0]);
-            } 
+            }
           } catch (e) {
             debugPrint('Erro ao buscar dados do TMDB: $e');
             movie['poster_url'] = null;
@@ -238,8 +238,43 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   }
 
   Widget _buildMovieCard(Map<String, dynamic> movie) {
-    print(movie);
     return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder:
+              (ctx) => AlertDialog(
+                title: Text(movie['title']),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${movie['year']} • ${movie['genres'].join(', ')}'),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Sinopse',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(movie['overview'] ?? 'Sinopse não disponível.'),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Por que recomendamos:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(movie['why_recommend'] ?? ''),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('Fechar'),
+                  ),
+                ],
+              ),
+        );
+      },
       onPanUpdate: (details) {
         if (details.delta.dx > 0) {
           _handleSwipe('like');

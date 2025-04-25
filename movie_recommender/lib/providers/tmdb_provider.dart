@@ -47,4 +47,29 @@ class TmdbProvider {
       return {'id': genre['id'], 'name': genre['name']};
     }).toList();
   }
+
+  Future<List<Map<String, dynamic>>> searchMoviesByTitle(
+    String title, {
+    int page = 1,
+  }) async {
+    final Map<dynamic, dynamic> result = await _tmdb.v3.search.queryMovies(
+      title,
+      page: page,
+    );
+    final List<dynamic> movies = result['results'] ?? [];
+    return movies.map((movie) {
+      return {
+        'id': movie['id'],
+        'title': movie['title'],
+        'year': movie['release_date']?.split('-')[0] ?? 'N/A',
+        'overview': movie['overview'],
+        'genres': movie['genre_ids'],
+        'poster_path': movie['poster_path'],
+        'poster_url': 'https://image.tmdb.org/t/p/w500${movie['poster_path']}',
+        'backdrop_url':
+            'https://image.tmdb.org/t/p/w500${movie['backdrop_path']}',
+        'backdrop_path': movie['backdrop_path'],
+      };
+    }).toList();
+  }
 }

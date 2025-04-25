@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/api_limit_service.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
@@ -19,6 +20,7 @@ class RecommendationsPage extends StatefulWidget {
 
 class _RecommendationsPageState extends State<RecommendationsPage> {
   final List<Map<String, dynamic>> _movies = [];
+  final TmdbProvider _tmdbProvider = TmdbProvider();
   final userId = FirebaseAuth.instance.currentUser?.uid;
   int _currentIndex = 0;
   bool _isLoading = true;
@@ -106,13 +108,27 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       final jsonStartIndex = text.indexOf('[');
       final jsonEndIndex = text.lastIndexOf(']');
       if (jsonStartIndex != -1 && jsonEndIndex != -1) {
+        final movies = List<Map<String, dynamic>>.from(
+          json.decode(text.substring(jsonStartIndex, jsonEndIndex + 1)),
+        );
+
+        for (var movie in movies) {
+          try {
+            final details = await _tmdbProvider.searchMoviesByTitle(
+              movie['title'],
+            );
+
+            if (details.isNotEmpty) {
+              movie.addAll(details[0]);
+            } 
+          } catch (e) {
+            debugPrint('Erro ao buscar dados do TMDB: $e');
+            movie['poster_url'] = null;
+          }
+        }
         setState(() {
           _movies.clear();
-          _movies.addAll(
-            List<Map<String, dynamic>>.from(
-              json.decode(text.substring(jsonStartIndex, jsonEndIndex + 1)),
-            ),
-          );
+          _movies.addAll(movies);
           _isLoading = false;
         });
       }
@@ -222,6 +238,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   }
 
   Widget _buildMovieCard(Map<String, dynamic> movie) {
+    print(movie);
     return GestureDetector(
       onPanUpdate: (details) {
         if (details.delta.dx > 0) {

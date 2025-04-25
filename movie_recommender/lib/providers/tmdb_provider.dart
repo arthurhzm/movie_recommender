@@ -48,6 +48,19 @@ class TmdbProvider {
     }).toList();
   }
 
+  Future<List<String>> _getGenreNames(List<dynamic> genreIds) async {
+    final List<Map<String, dynamic>> genres = await getMovieGenders();
+    final List<String> genreNames = [];
+    for (var genreId in genreIds) {
+      final genre = genres.firstWhere(
+        (genre) => genre['id'] == genreId,
+        orElse: () => {'name': 'Unknown'},
+      );
+      genreNames.add(genre['name']);
+    }
+    return genreNames;
+  }
+
   Future<List<Map<String, dynamic>>> searchMoviesByTitle(
     String title, {
     int page = 1,
@@ -57,19 +70,23 @@ class TmdbProvider {
       page: page,
     );
     final List<dynamic> movies = result['results'] ?? [];
-    return movies.map((movie) {
-      return {
+
+    List<Map<String, dynamic>> moviesList = [];
+    for (var movie in movies) {
+      final genreNames = await _getGenreNames(movie['genre_ids'] ?? []);
+      moviesList.add({
         'id': movie['id'],
         'title': movie['title'],
         'year': movie['release_date']?.split('-')[0] ?? 'N/A',
         'overview': movie['overview'],
-        'genres': movie['genre_ids'],
+        'genres': genreNames,
         'poster_path': movie['poster_path'],
         'poster_url': 'https://image.tmdb.org/t/p/w500${movie['poster_path']}',
         'backdrop_url':
             'https://image.tmdb.org/t/p/w500${movie['backdrop_path']}',
         'backdrop_path': movie['backdrop_path'],
-      };
-    }).toList();
+      });
+    }
+    return moviesList;
   }
 }

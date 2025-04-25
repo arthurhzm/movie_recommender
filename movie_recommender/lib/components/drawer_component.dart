@@ -41,6 +41,13 @@ class _DrawerComponentState extends State<DrawerComponent> {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.recommend),
+            title: const Text('Recomendações'),
+            onTap: () {
+              Navigator.pushNamed(context, '/recommendations');
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.add_reaction_outlined),
             title: const Text('Preferências'),
             onTap: () {

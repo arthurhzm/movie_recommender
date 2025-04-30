@@ -4,6 +4,7 @@ import 'package:movie_recommender/pages/add_preferences_page.dart';
 import 'package:movie_recommender/pages/home_page.dart';
 import 'package:movie_recommender/pages/login_page.dart';
 import 'package:movie_recommender/pages/preferences_page.dart';
+import 'package:movie_recommender/pages/profile_page.dart';
 import 'package:movie_recommender/pages/recommendations_page.dart';
 import 'package:movie_recommender/pages/register_page.dart';
 import 'package:movie_recommender/pages/user_movies_page.dart';
@@ -14,7 +15,7 @@ Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load(fileName: ".env");
-  runApp(const MyApp());  
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomePage(),
+        '/profile': (context) => const ProfilePage(),
         '/preferences': (context) => const PreferencesPage(),
         '/preferences/add': (context) => const AddPreferencesPage(),
         '/recommendations': (context) => const RecommendationsPage(),

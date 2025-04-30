@@ -37,8 +37,13 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       throw Exception('GEMINI_API_KEY not found in .env file');
     }
     _model = GenerativeModel(
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash-preview-04-17',
       apiKey: dotenv.env['GEMINI_API_KEY']!,
+      // tools: [
+      //   Tool(
+
+      //   ),
+      // ],
     );
     userPreferences = _userService.getUserPreferences();
     userSwipes = _userService.getUserSwipes();
@@ -175,6 +180,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       - genres
       - overview
       - why_recommend
+      - link (streaming ou download disponível)
 
       Limite a 200 caracteres por "why_recommend"
 
@@ -263,6 +269,10 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(movie['why_recommend'] ?? ''),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Link para assistir ao filme: ${movie['link'] ?? 'Não disponível'}',
+                    ),
                   ],
                 ),
                 actions: [

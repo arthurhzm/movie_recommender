@@ -68,24 +68,23 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder:
-            (context) => AlertDialog(
-              title: Text(
-                canRequest['reason'] == 'DAILY_COUNT'
-                    ? 'Limite diário atingido'
-                    : 'Muitas solicitações',
-              ),
-              content: Text(message),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Entendi'),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: Text(
+            canRequest['reason'] == 'DAILY_COUNT'
+                ? 'Limite diário atingido'
+                : 'Muitas solicitações',
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Entendi'),
             ),
+          ],
+        ),
       );
       setState(() {
         _isLoading = false;
@@ -109,12 +108,27 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       final prompt = await _buildPrompt(preferences);
       final response = await _model.generateContent([Content.text(prompt)]);
       final text = response.text ?? 'Não foi possível gerar as recomendações';
-      final jsonStartIndex = text.indexOf('[');
-      final jsonEndIndex = text.lastIndexOf(']');
+      final sanitizedText = _sanitizeJson(text);
+      final jsonStartIndex = sanitizedText.indexOf('[');
+      final jsonEndIndex = sanitizedText.lastIndexOf(']');
+      debugPrint(
+          'JSON: ${sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)}');
       if (jsonStartIndex != -1 && jsonEndIndex != -1) {
         final movies = List<Map<String, dynamic>>.from(
-          json.decode(text.substring(jsonStartIndex, jsonEndIndex + 1)),
-        );
+          json.decode(
+              sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)),
+        ).map((movie) {
+          return {
+            'title': movie['title'] ?? 'Título desconhecido',
+            'year': movie['year']?.toString() ?? 'Ano desconhecido',
+            'genres': List<String>.from(movie['genres'] ?? []),
+            'overview': movie['overview'] ?? 'Sinopse não disponível',
+            'why_recommend':
+                movie['why_recommend'] ?? 'Recomendação não disponível',
+            'streaming_services':
+                List<String>.from(movie['streaming_services'] ?? []),
+          };
+        }).toList();
 
         for (var movie in movies) {
           try {
@@ -180,7 +194,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       - genres
       - overview
       - why_recommend
-      - link (streaming ou download disponível)
+      - streaming_services (lista de serviços de streaming onde está disponível no Brasil. Ex: ["Netflix", "Prime Video", "Star+"])
 
       Limite a 200 caracteres por "why_recommend"
 
@@ -199,9 +213,28 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       2. Evite gêneros rejeitados
       3. Inclua 1 filme surpresa baseado em padrões similares
       4. Limite a 200 caracteres por "why_recommend"
+      5. Para "streaming_services":
+       - Liste apenas serviços válidos e verificáveis
+       - Use nomes oficiais (ex: "GloboPlay", não "Globo Play")
+       - Se não houver informação, retorne array vazio
+      6. Use apenas caracteres ASCII simples
+      7. Não inclua comentários ou texto adicional
+      8. Verifique cuidadosamente a formatação JSON
+      9. Nunca use caracteres especiais ou Unicode
 
-      [Repita para os 3 filmes]
-      (Retorne apenas o JSON)
+      Exemplo de JSON válido:
+      [
+        {
+          "title": "Interestelar",
+          "year": 2014,
+          "genres": ["Ficção Científica", "Aventura"],
+          "overview": "Um grupo de exploradores...",
+          "why_recommend": "Excelente representação...",
+          "streaming_services": ["Netflix"]
+        }
+      ]
+      
+      (Retorne apenas o JSON válido, sem markdown ou formatação adicional)
       ''';
   }
 
@@ -247,41 +280,42 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       onTap: () {
         showDialog(
           context: context,
-          builder:
-              (ctx) => AlertDialog(
-                title: Text(movie['title']),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${movie['year']} • ${movie['genres'].join(', ')}'),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Sinopse',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(movie['overview'] ?? 'Sinopse não disponível.'),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Por que recomendamos:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(movie['why_recommend'] ?? ''),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Link para assistir ao filme: ${movie['link'] ?? 'Não disponível'}',
-                    ),
-                  ],
+          builder: (ctx) => AlertDialog(
+            title: Text(movie['title']),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${movie['year']} • ${movie['genres'].join(', ')}'),
+                const SizedBox(height: 16),
+                const Text(
+                  'Sinopse',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    child: const Text('Fechar'),
-                  ),
-                ],
+                const SizedBox(height: 8),
+                Text(movie['overview'] ?? 'Sinopse não disponível.'),
+                const SizedBox(height: 16),
+                const Text(
+                  'Por que recomendamos:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(movie['why_recommend'] ?? ''),
+                const SizedBox(height: 8),
+                Text(
+                  'Disponível em: ${movie['streaming_services']?.join(', ') ?? 'Nenhum serviço de streaming encontrado'}',
+                  style: TextStyle(
+                      color: Colors.blue, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Fechar'),
               ),
+            ],
+          ),
         );
       },
       onPanUpdate: (details) {
@@ -300,19 +334,17 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                image:
-                    movie['poster_url'] != null
-                        ? DecorationImage(
-                          image: NetworkImage(movie['poster_url']),
-                          fit: BoxFit.cover,
-                        )
-                        : null,
+                image: movie['poster_url'] != null
+                    ? DecorationImage(
+                        image: NetworkImage(movie['poster_url']),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
                 color: Colors.grey.shade200,
               ),
-              child:
-                  movie['poster_url'] == null
-                      ? const Center(child: Icon(Icons.movie, size: 50))
-                      : null,
+              child: movie['poster_url'] == null
+                  ? const Center(child: Icon(Icons.movie, size: 50))
+                  : null,
             ),
             Positioned(
               bottom: 0,
@@ -351,12 +383,19 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     );
   }
 
+  String _sanitizeJson(String rawJson) {
+    // Remove caracteres não-ASCII e linhas problemáticas
+    return rawJson
+        .replaceAll(RegExp(r'[^\x00-\x7F]'), '') // Remove caracteres não-ASCII
+        .replaceAll(RegExp(r',\s*\}'), '}') // Remove vírgulas finais
+        .replaceAll(RegExp(r',\s*\]'), ']'); // Remove vírgulas finais
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-
     if (_errorMessage != null) {
       return Center(child: Text(_errorMessage!));
     }
@@ -376,7 +415,23 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
           ),
         ],
       ),
-      body: Center(child: _buildMovieCard(_movies[_currentIndex])),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: userPreferences,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushNamed(context, '/preferences/add');
+            });
+            return const Center(child: Text('Redirecionando...'));
+          } else {
+            return Center(child: _buildMovieCard(_movies[_currentIndex]));
+          }
+        },
+      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Row(

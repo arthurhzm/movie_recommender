@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
           "lastRequest": null,
           "minuteCount": 0,
           "dailyCount": 0,
-          "lastReset": Timestamp,
+          "lastReset": Timestamp.now(),
         });
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {

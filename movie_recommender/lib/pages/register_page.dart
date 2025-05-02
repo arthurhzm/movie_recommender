@@ -32,9 +32,9 @@ class _RegisterPageState extends State<RegisterPage> {
         });
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
-          print('The password provided is too weak.');
+          print('A senha informada é muito fraca.');
         } else if (e.code == 'email-already-in-use') {
-          print('The account already exists for that email.');
+          print('O e-mail informado já está em uso. Faça login ou recupere a senha');
         }
       } catch (e) {
         print(e);
@@ -45,7 +45,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register'), centerTitle: true),
+      appBar: AppBar(title: const Text('Criar conta'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

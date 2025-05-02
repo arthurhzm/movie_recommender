@@ -12,7 +12,6 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-
   void _signIn() async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -50,6 +49,13 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(onPressed: _signIn, child: const Text('Login')),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/register');
+              },
+              child: const Text('Criar conta'),
+            ),
           ],
         ),
       ),

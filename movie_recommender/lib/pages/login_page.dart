@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CineMatch')),
+      appBar: AppBar(title: const Text('CineMatch', style: TextStyle(fontWeight: FontWeight.bold),)),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: Theme.of(context).textTheme.headlineMedium,
                   children: <TextSpan>[
                     TextSpan(
-                      text: "Bem-vindo ao CineMatch!\n",
+                      text: "Bem-vindo ao CineMatch\n",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 24,
@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     TextSpan(
                       text:
-                          "Faça seu login para começar sua busca pelo filme perfeito para você",
+                          "Faça seu login para começar a busca pelo filme perfeito para você!",
                       style: TextStyle(fontSize: 15),
                     ),
                   ],

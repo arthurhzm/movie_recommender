@@ -4,12 +4,14 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
   final List<Widget>? actions;
   final bool showDefaultIcon;
-  
+  final bool center;
+
   const StandardAppBar({
     super.key,
     this.title,
     this.actions,
     this.showDefaultIcon = true,
+    this.center = false,
   });
 
   @override
@@ -18,7 +20,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: title ?? (showDefaultIcon // Se title for null, usa o padrão
+      title: title ?? (showDefaultIcon
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: const [
@@ -29,7 +31,7 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
             )
           : null),
       actions: actions,
-      centerTitle: true, // Adicionado para centralizar
+      centerTitle: center,
     );
   }
 }

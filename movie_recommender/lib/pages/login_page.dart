@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:movie_recommender/components/standard_button.dart';
+import 'package:movie_recommender/components/standard_appbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CineMatch', style: TextStyle(fontWeight: FontWeight.bold),)),
+      appBar: StandardAppBar(),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

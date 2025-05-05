@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/standard_button.dart';
+import 'package:movie_recommender/components/standard_appbar.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -48,7 +49,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CineMatch'), centerTitle: true),
+      appBar: StandardAppBar(),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -57,7 +58,23 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.person, color: Colors.blue, size: 40),
+                      Icon(Icons.add_rounded, size: 40),
+                      Icon(Icons.movie_filter, color: Colors.green, size: 40),
+                      Icon(Icons.drag_handle_rounded, size: 40),
+                      Icon(Icons.favorite, color: Colors.orange, size: 40),
+                    ],
+                  ),
+                ),
+                Text(
+                  "Insira as credenciais abaixo para realizarmos seu registro na aplicação",
+                  style: TextStyle(fontSize: 15),
+                ),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:movie_recommender/components/standard_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.movie_filter, size: 100),
+              Icon(Icons.movie_filter, size: 80),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
@@ -67,13 +68,13 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextField(
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Senha'),
                 obscureText: true,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(onPressed: _signIn, child: const Text('Login')),
+              StandardButton(onPressed: _signIn, child: const Text('Login')),
               const SizedBox(height: 8),
-              ElevatedButton(
+              StandardButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/register');
                 },

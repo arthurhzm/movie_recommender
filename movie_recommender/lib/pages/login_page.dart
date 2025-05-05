@@ -34,46 +34,53 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('CineMatch')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Icon(Icons.movie_filter, size: 100),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: Theme.of(context).textTheme.headlineMedium,
-                children: <TextSpan>[
-                  TextSpan(
-                    text: "Bem-vindo ao CineMatch!\n",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
-                  ),
-                  TextSpan(
-                    text: "Faça seu login para começar sua busca pelo filme perfeito para você",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.movie_filter, size: 100),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: "Bem-vindo ao CineMatch!\n",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                      ),
+                    ),
+                    TextSpan(
+                      text:
+                          "Faça seu login para começar sua busca pelo filme perfeito para você",
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: _signIn, child: const Text('Login')),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: const Text('Criar conta'),
-            ),
-          ],
+              TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(onPressed: _signIn, child: const Text('Login')),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: const Text('Criar conta'),
+              ),
+            ],
+          ),
         ),
       ),
     );

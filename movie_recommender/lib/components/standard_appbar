@@ -1,0 +1,35 @@
+import 'package:flutter/material.dart';
+
+class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Widget? title;
+  final List<Widget>? actions;
+  final bool showDefaultIcon;
+  
+  const StandardAppBar({
+    super.key,
+    this.title,
+    this.actions,
+    this.showDefaultIcon = true,
+  });
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: title ?? (showDefaultIcon // Se title for null, usa o padrão
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.movie_filter),
+                SizedBox(width: 8),
+                Text('CineMatch', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            )
+          : null),
+      actions: actions,
+      centerTitle: true, // Adicionado para centralizar
+    );
+  }
+}

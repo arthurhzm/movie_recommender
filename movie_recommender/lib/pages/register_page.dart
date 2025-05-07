@@ -72,7 +72,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 Text(
                   "Insira as credenciais abaixo para realizarmos seu registro na aplicação",
-                  style: TextStyle(fontSize: 15),
+                  style: TextStyle(fontSize: 20),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(

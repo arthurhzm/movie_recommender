@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () => {},
+        onPressed: () {Navigator.pushNamed(context, '/chat');},
         backgroundColor: Colors.green,
         child: Icon(Icons.chat),
       ),

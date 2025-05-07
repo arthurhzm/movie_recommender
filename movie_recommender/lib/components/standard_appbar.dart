@@ -26,12 +26,13 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
               children: const [
                 Icon(Icons.movie_filter),
                 SizedBox(width: 8),
-                Text('CineMatch', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('CineMatch', style: TextStyle(fontWeight: FontWeight.bold),),
               ],
             )
           : null),
       actions: actions,
       centerTitle: center,
+      backgroundColor: Colors.grey[900],
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:movie_recommender/pages/profile_page.dart';
 import 'package:movie_recommender/pages/recommendations_page.dart';
 import 'package:movie_recommender/pages/register_page.dart';
 import 'package:movie_recommender/pages/user_movies_page.dart';
+import 'package:movie_recommender/pages/chat_page.dart';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         '/preferences/add': (context) => const AddPreferencesPage(),
         '/recommendations': (context) => const RecommendationsPage(),
         '/user_movies': (context) => const UserMoviesPage(),
+        '/chat': (context) => const ChatPage(),
       },
     );
   }

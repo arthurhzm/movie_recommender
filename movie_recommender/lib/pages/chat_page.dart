@@ -4,6 +4,8 @@ import 'package:movie_recommender/services/user_service.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
 
+import 'package:intl/intl.dart';
+
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
@@ -38,7 +40,7 @@ class _ChatPageState extends State<ChatPage> {
                   leading: CircleAvatar(),
                   title: Text(user?.displayName ?? ""),
                   subtitle: Text("Mensagem..."),
-                  trailing: Text(DateTime.now().toString()),
+                  trailing: Text(DateFormat('H:mm - dd/MM/yyyy').format(DateTime.now())),
                 ),
               ],
             ),

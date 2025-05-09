@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
@@ -20,16 +21,21 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: title ?? (showDefaultIcon
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.movie_filter),
-                SizedBox(width: 8),
-                Text('CineMatch', style: TextStyle(fontWeight: FontWeight.bold),),
-              ],
-            )
-          : null),
+      title:
+          title ??
+          (showDefaultIcon
+              ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.movie_filter),
+                  SizedBox(width: 8),
+                  Text(
+                    dotenv.env['APP_NAME']!,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              )
+              : null),
       actions: actions,
       centerTitle: center,
       backgroundColor: Colors.grey[900],

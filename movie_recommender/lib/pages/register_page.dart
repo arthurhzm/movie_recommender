@@ -25,6 +25,9 @@ class _RegisterPageState extends State<RegisterPage> {
               email: _emailController.text.trim(),
               password: _passwordController.text.trim(),
             );
+
+        await credential.user?.updateDisplayName(_nameController.text);
+
         await FirebaseFirestore.instance.collection('api_usage').add({
           "userId": credential.user?.uid,
           "lastRequest": null,
@@ -32,12 +35,15 @@ class _RegisterPageState extends State<RegisterPage> {
           "dailyCount": 0,
           "lastReset": Timestamp.now(),
         });
+        Navigator.pushReplacementNamed(context, '/');
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
-          print('A senha informada é muito fraca.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('A senha informada é muito fraca!')),
+          );
         } else if (e.code == 'email-already-in-use') {
-          print(
-            'O e-mail informado já está em uso. Faça login ou recupere a senha',
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('O e-mail informado já está em uso. Faça login ou recupere a senha!')),
           );
         }
       } catch (e) {

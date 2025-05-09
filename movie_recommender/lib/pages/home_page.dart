@@ -31,7 +31,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {Navigator.pushNamed(context, '/chat');},
+        onPressed: () {
+          Navigator.pushNamed(context, '/chat');
+        },
         backgroundColor: Colors.green,
         child: Icon(Icons.chat),
       ),
@@ -63,8 +65,9 @@ class _HomePageState extends State<HomePage> {
             return Center(
               child: Column(
                 children: [
+                  const SizedBox(height: 20,),
                   Text(
-                    "Olá ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
+                    "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
                   ),
                   const SizedBox(height: 15),
                   Text("Filmes com base em seus gostos"),
@@ -154,4 +157,15 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+String horarioAtual() {
+  String mensagem = "";
+  DateTime now = DateTime.now();
+
+  if (now.hour >= 5) mensagem = "Bom dia";
+  if (now.hour >= 12) mensagem = "Boa tarde";
+  if (now.hour >= 19) mensagem = "Boa noite";
+
+  return mensagem;
 }

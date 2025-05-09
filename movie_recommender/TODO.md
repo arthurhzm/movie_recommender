@@ -2,6 +2,8 @@
 - Na tela de cadastro/edição de preferências, colocar atores favoritos também
 <!-- - Tela de edição de perfil do usuário -->
 - Recuperação de senha
+- adicionar opção de pesquisar diretores/atores favoritos
+- opção de search na tela principal (parecido com o google)
 
 Ideias para agora ou talvez TG
 

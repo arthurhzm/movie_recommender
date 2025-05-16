@@ -1,11 +1,9 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/providers/gemini_provider.dart';
 import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/api_limit_service.dart';
 import 'package:movie_recommender/services/user_service.dart';
@@ -20,6 +18,7 @@ class RecommendationsPage extends StatefulWidget {
 class _RecommendationsPageState extends State<RecommendationsPage> {
   final List<Map<String, dynamic>> _movies = [];
   final TmdbProvider _tmdbProvider = TmdbProvider();
+  final GeminiProvider _geminiProvider = GeminiProvider();
   final userId = FirebaseAuth.instance.currentUser?.uid;
   int _currentIndex = 0;
   bool _isLoading = true;
@@ -33,20 +32,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   @override
   void initState() {
     super.initState();
-    if (dotenv.env['GEMINI_API_KEY'] == null) {
-      throw Exception('GEMINI_API_KEY not found in .env file');
-    }
-    _model = GenerativeModel(
-      model: 'gemini-2.5-flash-preview-04-17',
-      apiKey: dotenv.env['GEMINI_API_KEY']!,
-      // tools: [
-      //   Tool(
-
-      //   ),
-      // ],
-    );
     userPreferences = _userService.getUserPreferences();
-    userSwipes = _userService.getUserSwipes();
     _loadRecommendations();
   }
 
@@ -68,23 +54,24 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: Text(
-            canRequest['reason'] == 'DAILY_COUNT'
-                ? 'Limite diário atingido'
-                : 'Muitas solicitações',
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Entendi'),
+        builder:
+            (context) => AlertDialog(
+              title: Text(
+                canRequest['reason'] == 'DAILY_COUNT'
+                    ? 'Limite diário atingido'
+                    : 'Muitas solicitações',
+              ),
+              content: Text(message),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Entendi'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
       setState(() {
         _isLoading = false;
@@ -93,149 +80,18 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     }
 
     try {
-      final preferences = await userPreferences;
-      await getMovieRecommendation(preferences);
+      final movies = await _geminiProvider.getMoviesRecommendations(3);
+      setState(() {
+        _movies.clear();
+        _movies.addAll(movies);
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
       });
     }
-  }
-
-  Future<String> getMovieRecommendation(preferences) async {
-    try {
-      final prompt = await _buildPrompt(preferences);
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final text = response.text ?? 'Não foi possível gerar as recomendações';
-      final sanitizedText = _sanitizeJson(text);
-      final jsonStartIndex = sanitizedText.indexOf('[');
-      final jsonEndIndex = sanitizedText.lastIndexOf(']');
-      debugPrint(
-          'JSON: ${sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)}');
-      if (jsonStartIndex != -1 && jsonEndIndex != -1) {
-        final movies = List<Map<String, dynamic>>.from(
-          json.decode(
-              sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)),
-        ).map((movie) {
-          return {
-            'title': movie['title'] ?? 'Título desconhecido',
-            'year': movie['year']?.toString() ?? 'Ano desconhecido',
-            'genres': List<String>.from(movie['genres'] ?? []),
-            'overview': movie['overview'] ?? 'Sinopse não disponível',
-            'why_recommend':
-                movie['why_recommend'] ?? 'Recomendação não disponível',
-            'streaming_services':
-                List<String>.from(movie['streaming_services'] ?? []),
-          };
-        }).toList();
-
-        for (var movie in movies) {
-          try {
-            final details = await _tmdbProvider.searchMoviesByTitle(
-              movie['title'],
-            );
-
-            if (details.isNotEmpty) {
-              movie.addAll(details[0]);
-            }
-          } catch (e) {
-            debugPrint('Erro ao buscar dados do TMDB: $e');
-            movie['poster_url'] = null;
-          }
-        }
-        setState(() {
-          _movies.clear();
-          _movies.addAll(movies);
-          _isLoading = false;
-        });
-      }
-      return 'Não foi possível extrair o JSON das recomendações';
-    } catch (e) {
-      throw Exception('Erro na geração: ${e.toString()}');
-    }
-  }
-
-  Future<String> _buildPrompt(Map<String, dynamic> preferences) async {
-    final swipes = await userSwipes;
-
-    final favoriteGenres =
-        preferences['favoriteGenres']?.join(', ') ?? 'Nenhum';
-    final favoriteDirectors =
-        preferences['favoriteDirectors']?.join(', ') ?? 'Nenhum';
-    final favoriteActors =
-        preferences['favoriteActors']?.join(', ') ?? 'Nenhum';
-    final minReleaseYear = preferences['minReleaseYear'] ?? 'Não especificado';
-    final maxDuration = preferences['maxDuration'] ?? 'Não especificado';
-    final acceptAdultContent =
-        preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
-
-    return '''
-      Você é um cinéfilo especialista em recomendar filmes personalizados. 
-      
-      Contexto do usuário:
-      - Gêneros preferidos: $favoriteGenres 
-      - Diretores favoritos: $favoriteDirectors
-      - Atores preferidos: $favoriteActors
-      - Período preferido: Filmes após $minReleaseYear
-      - Duração máxima: $maxDuration minutos
-      - Aceita conteúdo adulto: $acceptAdultContent
-
-      Sua tarefa:
-      1. Sugira 3 filmes que combinem com o perfil
-      2. Para cada filme, explique por que foi escolhido
-      3. Inclua 1 sugestão fora da zona de conforto
-      5. Priorize filmes com boa avaliação (>70% no Rotten Tomatoes)
-
-      Exemplo de estrutura:
-      Recomende filmes no formato JSON com:
-      - title
-      - year
-      - genres
-      - overview
-      - why_recommend
-      - streaming_services (lista de serviços de streaming onde está disponível no Brasil. Ex: ["Netflix", "Prime Video", "Star+"])
-
-      Limite a 200 caracteres por "why_recommend"
-
-      Baseado no histórico:
-      - Filmes curtidos: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['movieTitle']).join(', ')}
-      - Filmes rejeitados: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['movieTitle']).join(', ')}
-      - Filmes super curtidos: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['movieTitle']).join(', ')}
-
-      Feedback detalhado:
-      - Curtidas: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['detailedFeedback']).join(', ')}
-      - Rejeitadas: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['detailedFeedback']).join(', ')}
-      - Super curtidas: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['detailedFeedback']).join(', ')}
-
-      Regras:
-      1. Priorize gêneros curtidos
-      2. Evite gêneros rejeitados
-      3. Inclua 1 filme surpresa baseado em padrões similares
-      4. Limite a 200 caracteres por "why_recommend"
-      5. Para "streaming_services":
-       - Liste apenas serviços válidos e verificáveis
-       - Use nomes oficiais (ex: "GloboPlay", não "Globo Play")
-       - Se não houver informação, retorne array vazio
-      6. Use apenas caracteres ASCII simples
-      7. Não inclua comentários ou texto adicional
-      8. Verifique cuidadosamente a formatação JSON
-      9. Nunca use caracteres especiais ou Unicode
-
-      Exemplo de JSON válido:
-      [
-        {
-          "title": "Interestelar",
-          "year": 2014,
-          "genres": ["Ficção Científica", "Aventura"],
-          "overview": "Um grupo de exploradores...",
-          "why_recommend": "Excelente representação...",
-          "streaming_services": ["Netflix"]
-        }
-      ]
-      
-      (Retorne apenas o JSON válido, sem markdown ou formatação adicional)
-      ''';
   }
 
   void _handleSwipe(String action) async {
@@ -280,42 +136,45 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       onTap: () {
         showDialog(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(movie['title']),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${movie['year']} • ${movie['genres'].join(', ')}'),
-                const SizedBox(height: 16),
-                const Text(
-                  'Sinopse',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+          builder:
+              (ctx) => AlertDialog(
+                title: Text(movie['title']),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${movie['year']} • ${movie['genres'].join(', ')}'),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Sinopse',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(movie['overview'] ?? 'Sinopse não disponível.'),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Por que recomendamos:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(movie['why_recommend'] ?? ''),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Disponível em: ${movie['streaming_services']?.join(', ') ?? 'Nenhum serviço de streaming encontrado'}',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(movie['overview'] ?? 'Sinopse não disponível.'),
-                const SizedBox(height: 16),
-                const Text(
-                  'Por que recomendamos:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(movie['why_recommend'] ?? ''),
-                const SizedBox(height: 8),
-                Text(
-                  'Disponível em: ${movie['streaming_services']?.join(', ') ?? 'Nenhum serviço de streaming encontrado'}',
-                  style: TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Fechar'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('Fechar'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       },
       onPanUpdate: (details) {
@@ -330,21 +189,22 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Stack(
           children: [
-            // Imagem do filme (substitua pelo seu widget de imagem)
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                image: movie['poster_url'] != null
-                    ? DecorationImage(
-                        image: NetworkImage(movie['poster_url']),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
+                image:
+                    movie['poster_url'] != null
+                        ? DecorationImage(
+                          image: NetworkImage(movie['poster_url']),
+                          fit: BoxFit.cover,
+                        )
+                        : null,
                 color: Colors.grey.shade200,
               ),
-              child: movie['poster_url'] == null
-                  ? const Center(child: Icon(Icons.movie, size: 50))
-                  : null,
+              child:
+                  movie['poster_url'] == null
+                      ? const Center(child: Icon(Icons.movie, size: 50))
+                      : null,
             ),
             Positioned(
               bottom: 0,

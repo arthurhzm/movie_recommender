@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -10,7 +11,6 @@ class GeminiProvider {
     model: 'gemini-2.5-flash-preview-04-17',
     apiKey: dotenv.env['GEMINI_API_KEY']!,
   );
-
   final _userService = UserService();
   final _tmdbProvider = TmdbProvider();
 
@@ -32,7 +32,7 @@ class GeminiProvider {
         preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
     final specialMovies =
         special
-            ? '6. Recomende APENAS filmes de datas comemorativas. Ex: natal, páscoa, etc.'
+            ? '6. Recomende APENAS filmes relacionados a próxima data comemorativa BRASILEIRA após hoje'
             : '';
 
     return '''
@@ -175,6 +175,67 @@ class GeminiProvider {
         return movies;
       }
       return [];
+    } catch (e) {
+      throw Exception('Erro na geração: ${e.toString()}');
+    }
+  }
+
+  Future<String> sendIndividualMessage(
+    List<Map<String, String>> messages,
+  ) async {
+    debugPrint(messages.toString());
+    final user = FirebaseAuth.instance.currentUser;
+    final userName = user!.displayName;
+    final Map<String, dynamic> preferences =
+        await _userService.getUserPreferences();
+    final List<Map<String, dynamic>> swipes =
+        await _userService.getUserSwipes();
+
+    final favoriteGenres =
+        preferences['favoriteGenres']?.join(', ') ?? 'Nenhum';
+    final favoriteDirectors =
+        preferences['favoriteDirectors']?.join(', ') ?? 'Nenhum';
+    final favoriteActors =
+        preferences['favoriteActors']?.join(', ') ?? 'Nenhum';
+    final minReleaseYear = preferences['minReleaseYear'] ?? 'Não especificado';
+    final maxDuration = preferences['maxDuration'] ?? 'Não especificado';
+    final acceptAdultContent =
+        preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
+
+    final prompt = '''
+        [SISTEMA] - Estamos em um sistema de recomendação de filmes com base em gostos do usuário e avaliações de filmes já assistidos.
+        Você está em um chat com o usuário $userName.
+
+        Neste contexto, você é um cinéfilo especialista em recomendar filmes personalizados. Evite responder qualquer pergunta que não seja sobre filmes.
+      
+        Contexto do usuário:
+        - Gêneros preferidos: $favoriteGenres 
+        - Diretores favoritos: $favoriteDirectors
+        - Atores preferidos: $favoriteActors
+        - Período preferido: Filmes após $minReleaseYear
+        - Duração máxima: $maxDuration minutos
+        - Aceita conteúdo adulto: $acceptAdultContent
+
+         Baseado no histórico:
+        - Filmes curtidos: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['movieTitle']).join(', ')}
+        - Filmes rejeitados: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['movieTitle']).join(', ')}
+        - Filmes super curtidos: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['movieTitle']).join(', ')}
+
+        Feedback detalhado:
+        - Curtidas: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['detailedFeedback']).join(', ')}
+        - Rejeitadas: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['detailedFeedback']).join(', ')}
+        - Super curtidas: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['detailedFeedback']).join(', ')}
+
+        As mensagens trocadas até agora foram: $messages
+        Responda ao ultimo prompt do usuário. [/SISTEMA]
+    ''';
+
+    try {
+      final response = await _model.generateContent([Content.text(prompt)]);
+      final text =
+          response.text ??
+          'Não foi possível responder a esta solicitação no momento...';
+      return text;
     } catch (e) {
       throw Exception('Erro na geração: ${e.toString()}');
     }

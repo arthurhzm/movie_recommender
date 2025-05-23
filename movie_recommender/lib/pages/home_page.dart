@@ -71,33 +71,31 @@ class _HomePageState extends State<HomePage> {
             });
             return const Center(child: Text('Redirecting...'));
           } else {
-            return FutureBuilder(
-              future: allMovies,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.pushNamed(context, '/preferences/add');
-                  });
-                  return const Center(child: Text('Redirecting...'));
-                } else {
-                  final moviesList = snapshot.data![0];
-                  final specialMoviesList = snapshot.data![1];
-                  return Center(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        Text(
-                          "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
-                        ),
-                        const SizedBox(height: 15),
-                        Text("Filmes com base em seus gostos"),
-                        SizedBox(
-                          height: 180,
-                          child: ScrollConfiguration(
+            // Main content loads immediately
+            return Center(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Text(
+                    "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
+                  ),
+                  const SizedBox(height: 15),
+                  Text("Filmes com base em seus gostos"),
+                  // First movie section with spinner while loading
+                  SizedBox(
+                    height: 180,
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: movies,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(child: Text('Nenhum filme encontrado'));
+                        } else {
+                          final moviesList = snapshot.data!;
+                          return ScrollConfiguration(
                             behavior: ScrollConfiguration.of(context).copyWith(
                               scrollbars: true,
                               dragDevices: {
@@ -108,7 +106,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: 10,
+                              itemCount: moviesList.length,
                               physics: const BouncingScrollPhysics(),
                               padding: EdgeInsets.symmetric(horizontal: 16),
                               itemBuilder: (context, index) {
@@ -116,13 +114,28 @@ class _HomePageState extends State<HomePage> {
                                 return movieCard(context, movie);
                               },
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        Text("Filmes festivos para você"),
-                        SizedBox(
-                          height: 180,
-                          child: ScrollConfiguration(
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Text("Filmes festivos para você"),
+                  // Second movie section with spinner while loading
+                  SizedBox(
+                    height: 180,
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: specialMovies,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(child: Text('Nenhum filme encontrado'));
+                        } else {
+                          final specialMoviesList = snapshot.data!;
+                          return ScrollConfiguration(
                             behavior: ScrollConfiguration.of(context).copyWith(
                               scrollbars: true,
                               dragDevices: {
@@ -133,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: 10,
+                              itemCount: specialMoviesList.length,
                               physics: const BouncingScrollPhysics(),
                               padding: EdgeInsets.symmetric(horizontal: 16),
                               itemBuilder: (context, index) {
@@ -141,22 +154,22 @@ class _HomePageState extends State<HomePage> {
                                 return movieCard(context, movie);
                               },
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        StandardButton(
-                          onPressed:
-                              () => Navigator.pushNamed(
-                                context,
-                                '/recommendations',
-                              ),
-                          child: const Text('Me recomende filmes'),
-                        ),
-                      ],
+                          );
+                        }
+                      },
                     ),
-                  );
-                }
-              },
+                  ),
+                  // Button is always visible immediately
+                  const SizedBox(height: 15),
+                  StandardButton(
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      '/recommendations',
+                    ),
+                    child: const Text('Me recomende filmes'),
+                  ),
+                ],
+              ),
             );
           }
         },

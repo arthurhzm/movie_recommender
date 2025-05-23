@@ -17,8 +17,9 @@ class GeminiProvider {
   Future<String> _buildPrompt(
     Map<String, dynamic> preferences,
     List<Map<String, dynamic>> swipes,
-    int length,
-  ) async {
+    int length, {
+    bool special = false,
+  }) async {
     final favoriteGenres =
         preferences['favoriteGenres']?.join(', ') ?? 'Nenhum';
     final favoriteDirectors =
@@ -29,6 +30,10 @@ class GeminiProvider {
     final maxDuration = preferences['maxDuration'] ?? 'Não especificado';
     final acceptAdultContent =
         preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
+    final specialMovies =
+        special
+            ? '6. Recomende APENAS filmes de datas comemorativas. Ex: natal, páscoa, etc.'
+            : '';
 
     return '''
       Você é um cinéfilo especialista em recomendar filmes personalizados. 
@@ -46,6 +51,7 @@ class GeminiProvider {
       2. Para cada filme, explique por que foi escolhido
       3. Inclua 1 sugestão fora da zona de conforto
       5. Priorize filmes com boa avaliação (>70% no Rotten Tomatoes)
+      $specialMovies
 
       Exemplo de estrutura:
       Recomende filmes no formato JSON com:
@@ -107,14 +113,20 @@ class GeminiProvider {
   }
 
   Future<List<Map<String, dynamic>>> getMoviesRecommendations(
-    int length,
-  ) async {
+    int length, {
+    bool special = false,
+  }) async {
     final Map<String, dynamic> preferences =
         await _userService.getUserPreferences();
     final List<Map<String, dynamic>> swipes =
         await _userService.getUserSwipes();
 
-    final prompt = await _buildPrompt(preferences, swipes, length);
+    final prompt = await _buildPrompt(
+      preferences,
+      swipes,
+      length,
+      special: special,
+    );
     try {
       final response = await _model.generateContent([Content.text(prompt)]);
 

@@ -242,4 +242,104 @@ class GeminiProvider {
       throw Exception('Erro na geração: ${e.toString()}');
     }
   }
+
+  Future<List<Map<String, dynamic>>> searchMovies(String query) async {
+    final Map<String, dynamic> preferences =
+        await _userService.getUserPreferences();
+    final List<Map<String, dynamic>> swipes =
+        await _userService.getUserSwipes();
+
+    final minReleaseYear = preferences['minReleaseYear'] ?? 'Não especificado';
+    final maxDuration = preferences['maxDuration'] ?? 'Não especificado';
+    final acceptAdultContent =
+        preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
+
+    final prompt = ''' 
+        [SISTEMA] - Estamos em um sistema de recomendação de filmes descontraído com base em gostos do usuário e avaliações de filmes já assistidos.
+        Neste contexto, você é um cinéfilo especialista em recomendar filmes personalizados.
+      
+        - Período preferido: Filmes após $minReleaseYear
+        - Duração máxima: $maxDuration minutos
+        - Aceita conteúdo adulto: $acceptAdultContent
+
+         Baseado no histórico:
+        - Filmes curtidos: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['movieTitle']).join(', ')}
+        - Filmes rejeitados: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['movieTitle']).join(', ')}
+        - Filmes super curtidos: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['movieTitle']).join(', ')}
+
+        Feedback detalhado:
+        - Curtidas: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['detailedFeedback']).join(', ')}
+        - Rejeitadas: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['detailedFeedback']).join(', ')}
+        - Super curtidas: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['detailedFeedback']).join(', ')}
+
+         Exemplo de estrutura:
+        Recomende até 10 filmes filmes no formato JSON com:
+        - title
+        - year
+        - genres
+        - overview
+        - why_recommend
+        - streaming_services (lista de serviços de streaming onde está disponível no Brasil. Ex: ["Netflix", "Prime Video", "Star+"])
+
+      Limite a 200 caracteres por "why_recommend"
+
+      A pesquisa do usuário para encontrar filmes foi: $query
+      
+       [/SISTEMA]
+    ''';
+
+    try {
+      final response = await _model.generateContent([Content.text(prompt)]);
+
+      final text = response.text ?? 'Não foi possível gerar as recomendações';
+      final sanitizedText = _sanitizeJson(text);
+      final jsonStartIndex = sanitizedText.indexOf('[');
+      final jsonEndIndex = sanitizedText.lastIndexOf(']');
+      debugPrint(
+        'JSON: ${sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)}',
+      );
+      if (jsonStartIndex != -1 && jsonEndIndex != -1) {
+        final movies =
+            List<Map<String, dynamic>>.from(
+              json.decode(
+                sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1),
+              ),
+            ).map((movie) {
+              return {
+                'title': movie['title'] ?? 'Título desconhecido',
+                'year': movie['year']?.toString() ?? 'Ano desconhecido',
+                'genres': List<String>.from(movie['genres'] ?? []),
+                'overview': movie['overview'] ?? 'Sinopse não disponível',
+                'why_recommend':
+                    movie['why_recommend'] ?? 'Recomendação não disponível',
+                'streaming_services': List<String>.from(
+                  movie['streaming_services'] ?? [],
+                ),
+              };
+            }).toList();
+
+        for (var movie in movies) {
+          try {
+            final details = await _tmdbProvider.searchMoviesByTitle(
+              movie['title'],
+            );
+
+            if (details.isNotEmpty) {
+              movie.addAll(details[0]);
+            }
+          } catch (e) {
+            debugPrint('Erro ao buscar dados do TMDB: $e');
+            movie['poster_url'] = null;
+          }
+        }
+
+        debugPrint(movies.toString());
+
+        return movies;
+      }
+      return [];
+    } catch (e) {
+      throw Exception('Erro na geração: ${e.toString()}');
+    }
+  }
 }

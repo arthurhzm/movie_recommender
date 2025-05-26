@@ -25,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   late Future<List<Map<String, dynamic>>> movies;
   late Future<List<Map<String, dynamic>>> specialMovies;
   late Future<List<List<Map<String, dynamic>>>> allMovies;
+  final _searchMovieController = TextEditingController();
 
   @override
   void initState() {
@@ -77,7 +78,36 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const SizedBox(height: 20),
                   Text(
-                    "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
+                    "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir? Você também pode pesquisar por filmes no campo abaixo, seja pelo nome dele ou gênero",
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchMovieController,
+                          decoration: const InputDecoration(
+                            labelText: 'Pesquisar filme',
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          final query = _searchMovieController.text.trim();
+                          if (query.isNotEmpty) {
+                            Navigator.pushNamed(
+                              context,
+                              '/search',
+                              arguments: query,
+                            );
+                          }
+                        },
+                        child: const Text('Buscar'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 15),
                   Text("Filmes com base em seus gostos"),
@@ -87,12 +117,20 @@ class _HomePageState extends State<HomePage> {
                     child: FutureBuilder<List<Map<String, dynamic>>>(
                       future: movies,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return const Center(child: Text('Nenhum filme encontrado'));
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(
+                            child: Text('Nenhum filme encontrado'),
+                          );
                         } else {
                           final moviesList = snapshot.data!;
                           return ScrollConfiguration(
@@ -127,12 +165,20 @@ class _HomePageState extends State<HomePage> {
                     child: FutureBuilder<List<Map<String, dynamic>>>(
                       future: specialMovies,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return const Center(child: Text('Nenhum filme encontrado'));
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(
+                            child: Text('Nenhum filme encontrado'),
+                          );
                         } else {
                           final specialMoviesList = snapshot.data!;
                           return ScrollConfiguration(
@@ -162,10 +208,8 @@ class _HomePageState extends State<HomePage> {
                   // Button is always visible immediately
                   const SizedBox(height: 15),
                   StandardButton(
-                    onPressed: () => Navigator.pushNamed(
-                      context,
-                      '/recommendations',
-                    ),
+                    onPressed:
+                        () => Navigator.pushNamed(context, '/recommendations'),
                     child: const Text('Me recomende filmes'),
                   ),
                 ],

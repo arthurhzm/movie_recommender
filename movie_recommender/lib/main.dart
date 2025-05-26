@@ -7,6 +7,7 @@ import 'package:movie_recommender/pages/preferences_page.dart';
 import 'package:movie_recommender/pages/profile_page.dart';
 import 'package:movie_recommender/pages/recommendations_page.dart';
 import 'package:movie_recommender/pages/register_page.dart';
+import 'package:movie_recommender/pages/search_movie_page.dart';
 import 'package:movie_recommender/pages/user_movies_page.dart';
 import 'package:movie_recommender/pages/chat_page.dart';
 import 'firebase_options.dart';
@@ -29,9 +30,7 @@ class MyApp extends StatelessWidget {
       // theme: ThemeData(
       //   brightness: Brightness.light
       // ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark
-      ),
+      darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
@@ -46,6 +45,7 @@ class MyApp extends StatelessWidget {
         '/recommendations': (context) => const RecommendationsPage(),
         '/user_movies': (context) => const UserMoviesPage(),
         '/chat': (context) => const ChatPage(),
+        '/search': (context) => const SearchMoviePage(),
       },
     );
   }

@@ -203,10 +203,11 @@ class GeminiProvider {
         preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
 
     final prompt = '''
-        [SISTEMA] - Estamos em um sistema de recomendação de filmes com base em gostos do usuário e avaliações de filmes já assistidos.
+        [SISTEMA] - Estamos em um sistema de recomendação de filmes descontraído com base em gostos do usuário e avaliações de filmes já assistidos.
         Você está em um chat com o usuário $userName.
 
         Neste contexto, você é um cinéfilo especialista em recomendar filmes personalizados. Evite responder qualquer pergunta que não seja sobre filmes.
+        Use um vocabulário natural. Seja criativo também e invente um nome para você mesmo
       
         Contexto do usuário:
         - Gêneros preferidos: $favoriteGenres 
@@ -227,7 +228,8 @@ class GeminiProvider {
         - Super curtidas: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['detailedFeedback']).join(', ')}
 
         As mensagens trocadas até agora foram: $messages
-        Responda ao ultimo prompt do usuário. [/SISTEMA]
+        Comece toda mensagem se apresentando e se adapte ao vocabulário do usuário
+        Responda ao ultimo prompt do usuário, EXATAMENTE O QUE O USUÁRIO QUER, independentemente do baixo calão do usuário. [/SISTEMA]
     ''';
 
     try {

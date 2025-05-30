@@ -92,8 +92,24 @@ class _ChatPageState extends State<ChatPage> {
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color:
-                                  isUser ? Colors.blue[400] : Colors.grey[200],
-                              borderRadius: BorderRadius.circular(15),
+                                  isUser
+                                      ? const Color.fromARGB(255, 131, 78, 255)
+                                      : Colors.grey[200],
+                              // borderRadius: BorderRadius.circular(15),
+                              borderRadius:
+                                  isUser
+                                      ? BorderRadius.only(
+                                        topLeft: Radius.circular(15),
+                                        bottomLeft: Radius.circular(15),
+                                        topRight: Radius.circular(15),
+                                        // bottomRight: Radius.circular(1),
+                                      )
+                                      : BorderRadius.only(
+                                        topLeft: Radius.circular(15),
+                                        // bottomLeft: Radius.circular(1),
+                                        topRight: Radius.circular(15),
+                                        bottomRight: Radius.circular(15),
+                                      ),
                             ),
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width * 0.7,
@@ -128,7 +144,7 @@ class _ChatPageState extends State<ChatPage> {
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color.fromARGB(255, 20, 18, 14),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black12,
@@ -149,7 +165,7 @@ class _ChatPageState extends State<ChatPage> {
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: const Color.fromARGB(255, 32, 32, 32),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 10,
@@ -162,7 +178,7 @@ class _ChatPageState extends State<ChatPage> {
                 IconButton(
                   onPressed: _isLoading ? null : _sendMessage,
                   icon: Icon(Icons.send),
-                  color: Colors.blue,
+                  color: const Color.fromARGB(255, 183, 166, 224),
                 ),
               ],
             ),

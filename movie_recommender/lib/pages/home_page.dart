@@ -26,7 +26,6 @@ class _HomePageState extends State<HomePage> {
   late Future<List<Map<String, dynamic>>> movies;
   late Future<List<Map<String, dynamic>>> specialMovies;
   late Future<List<List<Map<String, dynamic>>>> allMovies;
-  final _searchMovieController = TextEditingController();
 
   @override
   void initState() {
@@ -79,36 +78,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const SizedBox(height: 20),
                   Text(
-                    "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir? Você também pode pesquisar por filmes no campo abaixo, seja pelo nome dele ou gênero",
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchMovieController,
-                          decoration: const InputDecoration(
-                            labelText: 'Pesquisar filme',
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          final query = _searchMovieController.text.trim();
-                          if (query.isNotEmpty) {
-                            Navigator.pushNamed(
-                              context,
-                              '/search',
-                              arguments: query,
-                            );
-                          }
-                        },
-                        child: const Text('Buscar'),
-                      ),
-                    ],
+                    "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
                   ),
                   const SizedBox(height: 15),
                   Text("Filmes com base em seus gostos"),

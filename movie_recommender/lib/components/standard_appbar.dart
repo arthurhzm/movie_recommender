@@ -36,7 +36,15 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ],
               )
               : null),
-      actions: actions,
+      actions: [
+        IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () async {
+              Navigator.pushReplacementNamed(context, '/search');
+            },
+          ),
+          ...?actions,
+        ],
       centerTitle: center,
       backgroundColor: Colors.grey[900],
     );

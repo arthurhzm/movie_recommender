@@ -26,6 +26,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   int _selectedDuration = 180;
   bool _adultContent = false;
   late Future<List<Map<String, dynamic>>> _popularDirectors;
+  late Future<List<Map<String, dynamic>>> _popularActors;
   late Future<List<Map<String, dynamic>>> _allGenres;
 
   final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -62,6 +63,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
         });
 
     _popularDirectors = _movieApiProvider.getDirectors();
+    _popularActors = _movieApiProvider.getActors();
 
     _popularDirectors
         .then((directors) {
@@ -69,6 +71,14 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
         })
         .catchError((error) {
           // debugPrint('Error loading directors: $error');
+        });
+
+    _popularActors
+        .then((actors) {
+          // debugPrint('Actors: $actors');
+        })
+        .catchError((error) {
+          // debugPrint('Error loading actors: $error');
         });
 
     _allGenres = _tmdbProvider.getMovieGenders();
@@ -204,6 +214,43 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                                   _selectedDirectors.add(directorName);
                                 } else {
                                   _selectedDirectors.remove(directorName);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 24),
+              const Text('Atores favoritos:', style: TextStyle(fontSize: 16)),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _popularActors,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Erro ao carregar atores: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('Nenhum ator encontrado.');
+                  }
+
+                  final actors = snapshot.data!;
+                  return Wrap(
+                    spacing: 8,
+                    children:
+                        actors.map((actor) {
+                          final actorName = actor['name'] ?? 'Desconhecido';
+                          return FilterChip(
+                            label: Text(actorName),
+                            selected: _selectedActors.contains(actorName),
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedActors.add(actorName);
+                                } else {
+                                  _selectedActors.remove(actorName);
                                 }
                               });
                             },

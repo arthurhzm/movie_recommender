@@ -103,6 +103,13 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               StandardButton(onPressed: _signIn, child: const Text('Login')),
               const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/forgot-password');
+                },
+                child: const Text('Esqueci minha senha'),
+              ),
+              const SizedBox(height: 8),
               StandardButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/register');

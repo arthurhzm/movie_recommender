@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/standard_button.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
+import 'package:http/http.dart' as http;
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -36,6 +38,17 @@ class _RegisterPageState extends State<RegisterPage> {
           "lastReset": Timestamp.now(),
         });
         Navigator.pushReplacementNamed(context, '/');
+
+        await http.post(
+          Uri.parse(
+            'https://movies-api-production-025d.up.railway.app/register',
+          ),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'Email': _emailController.text.trim(),
+            'Password': _passwordController.text.trim(),
+          }),
+        );
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -43,7 +56,11 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         } else if (e.code == 'email-already-in-use') {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('O e-mail informado já está em uso. Faça login ou recupere a senha!')),
+            const SnackBar(
+              content: Text(
+                'O e-mail informado já está em uso. Faça login ou recupere a senha!',
+              ),
+            ),
           );
         }
       } catch (e) {

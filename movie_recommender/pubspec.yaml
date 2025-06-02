@@ -43,6 +43,8 @@ dependencies:
   tmdb_api: ^2.2.3
   dio: ^5.8.0+1
   cached_network_image: ^3.4.1
+  http: ^1.4.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

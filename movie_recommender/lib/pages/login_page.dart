@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:movie_recommender/components/standard_button.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_recommender/providers/movie_api_provider.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final MovieApiProvider _movieApiProvider = MovieApiProvider();
 
   void _signIn() async {
     try {
@@ -34,11 +36,17 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
 
+      // deu certo kk
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         final token = responseData['data']['token'];
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('movie_api_token', token);
+      } else if (response.statusCode == 400) {
+        await _movieApiProvider.updateApiPassword(
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
+        );
       }
 
       Navigator.pushReplacementNamed(context, '/home');

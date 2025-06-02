@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,5 +59,20 @@ class MovieApiProvider {
 
     final actors = responseData['data'];
     return List<Map<String, dynamic>>.from(actors);
+  }
+
+  Future<void> updateApiPassword(String email, String newPassword) async {
+    final response = await http.put(
+      Uri.parse("$_baseUrl/update-password"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'newPassword': newPassword, 'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final token = responseData['data']['token'];
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('movie_api_token', token);
+    }
   }
 }

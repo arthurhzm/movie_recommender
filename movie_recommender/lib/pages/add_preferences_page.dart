@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/providers/movie_api_provider.dart';
 import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
@@ -15,6 +16,7 @@ class AddPreferencesPage extends StatefulWidget {
 class _AddPreferencesPageState extends State<AddPreferencesPage> {
   final UserService _userService = UserService();
   final TmdbProvider _tmdbProvider = TmdbProvider();
+  final MovieApiProvider _movieApiProvider = MovieApiProvider();
   late Future<Map<String, dynamic>> userPreferences;
   final _formKey = GlobalKey<FormState>();
   final List<String> _selectedGenres = [];
@@ -59,7 +61,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
           debugPrint('Error loading user preferences: $error');
         });
 
-    _popularDirectors = _tmdbProvider.getDirectors();
+    _popularDirectors = _movieApiProvider.getDirectors();
 
     _popularDirectors
         .then((directors) {
@@ -68,7 +70,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
         .catchError((error) {
           // debugPrint('Error loading directors: $error');
         });
-    
+
     _allGenres = _tmdbProvider.getMovieGenders();
 
     _allGenres
@@ -78,21 +80,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
         .catchError((error) {
           // debugPrint('Error loading genres: $error');
         });
-    
-
   }
-
-  //FIXME - Trocar por API depois
-  // final List<String> _allGenres = [
-  //   'Ação',
-  //   'Comédia',
-  //   'Drama',
-  //   'Ficção Científica',
-  //   'Terror',
-  //   'Romance',
-  //   'Animação',
-  //   'Documentário',
-  // ];
 
   Future<void> _savePreferences() async {
     if (_selectedGenres.isEmpty) {
@@ -153,9 +141,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    return Text(
-                      'Erro ao carregar gêneros: ${snapshot.error}',
-                    );
+                    return Text('Erro ao carregar gêneros: ${snapshot.error}');
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Text('Nenhum gênero encontrado.');
                   }
@@ -163,22 +149,23 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                   final genres = snapshot.data!;
                   return Wrap(
                     spacing: 8,
-                    children: genres.map((genre) {
-                      final genreName = genre['name'] ?? 'Desconhecido';
-                      return FilterChip(
-                        label: Text(genreName),
-                        selected: _selectedGenres.contains(genreName),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedGenres.add(genreName);
-                            } else {
-                              _selectedGenres.remove(genreName);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
+                    children:
+                        genres.map((genre) {
+                          final genreName = genre['name'] ?? 'Desconhecido';
+                          return FilterChip(
+                            label: Text(genreName),
+                            selected: _selectedGenres.contains(genreName),
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedGenres.add(genreName);
+                                } else {
+                                  _selectedGenres.remove(genreName);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
                   );
                 },
               ),

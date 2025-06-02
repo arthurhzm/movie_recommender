@@ -41,7 +41,6 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('movie_api_token', token);
       }
 
-
       Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

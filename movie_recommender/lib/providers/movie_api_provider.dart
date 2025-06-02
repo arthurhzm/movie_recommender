@@ -65,7 +65,7 @@ class MovieApiProvider {
     final response = await http.put(
       Uri.parse("$_baseUrl/update-password"),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'newPassword': newPassword, 'email': email}),
+      body: jsonEncode({'NewPassword': newPassword, 'Email': email}),
     );
 
     if (response.statusCode == 200) {

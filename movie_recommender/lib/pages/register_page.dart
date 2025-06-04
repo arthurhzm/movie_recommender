@@ -84,12 +84,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Name',
+                    labelText: 'Nome',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return 'Por favor, insira seu nome';
                     }
                     return null;
                   },
@@ -104,10 +104,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Por favor, insira seu email';
                     }
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
+                      return 'Por favor, insira um email válido';
                     }
                     return null;
                   },
@@ -116,22 +116,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Senha',
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Por favor, insira sua senha';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters long';
+                      return 'A senha deve ter ao menos 6 caracteres';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
-                StandardButton(onPressed: _createUser, child: Text('Register')),
+                StandardButton(onPressed: _createUser, child: Text('Registrar')),
               ],
             ),
           ),

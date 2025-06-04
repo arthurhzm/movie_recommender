@@ -29,6 +29,10 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     userPreferences = _userService.getUserPreferences();
+
+    _messageController.addListener(() {
+      setState(() {});
+    });
   }
 
   void _sendMessage() async {
@@ -177,7 +181,16 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(width: 8),
                 IconButton(
                   onPressed: _isLoading ? null : _sendMessage,
-                  icon: Icon(Icons.send),
+                  icon: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 200),
+                    transitionBuilder:
+                        (child, animation) =>
+                            ScaleTransition(scale: animation, child: child),
+                    child: Icon(
+                      _messageController.text.isEmpty ? Icons.mic : Icons.send,
+                      key: ValueKey<bool>(_messageController.text.isEmpty)
+                    ),
+                  ),
                   color: const Color.fromARGB(255, 183, 166, 224),
                 ),
               ],

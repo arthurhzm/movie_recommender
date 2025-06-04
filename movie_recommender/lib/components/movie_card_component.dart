@@ -76,8 +76,6 @@ class _MovieCardComponentState extends State<MovieCardComponent> {
         width: 120,
         margin: EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
               color: Colors.black12,
@@ -90,7 +88,7 @@ class _MovieCardComponentState extends State<MovieCardComponent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: BorderRadius.all(Radius.circular(5)),
               child: Image.network(
                 movie['poster_url'],
                 height: 180,

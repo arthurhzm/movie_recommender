@@ -112,7 +112,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         child: Icon(
                           _emailSent ? Icons.mark_email_read : Icons.lock_reset,
                           size: 80,
-                          color: _emailSent ? Colors.green : Theme.of(context).primaryColor,
+                          color: _emailSent ? Colors.green : Theme.of(context).primaryColorLight,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -120,7 +120,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         _emailSent ? 'Email Enviado!' : 'Esqueceu sua senha?',
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).primaryColorLight,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -131,11 +131,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           ? 'Verifique sua caixa de entrada e siga as instruções para redefinir sua senha. Depois volte aqui para fazer login!'
                           : 'Não se preocupe! Digite seu email e enviaremos um link para você redefinir sua senha e voltar a descobrir filmes incríveis.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                          color: Colors.grey[400],
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 15),
                       
                       if (!_emailSent) ...[
                         TextFormField(
@@ -201,7 +201,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         icon: const Icon(Icons.arrow_back),
                         label: Text(_emailSent ? 'Voltar para Login' : 'Voltar ao Login'),
                         style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Theme.of(context).primaryColorLight,
                         ),
                       ),
                       

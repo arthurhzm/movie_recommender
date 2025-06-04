@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
+import 'package:movie_recommender/providers/movie_api_provider.dart';
 import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
@@ -15,6 +16,7 @@ class AddPreferencesPage extends StatefulWidget {
 class _AddPreferencesPageState extends State<AddPreferencesPage> {
   final UserService _userService = UserService();
   final TmdbProvider _tmdbProvider = TmdbProvider();
+  final MovieApiProvider _movieApiProvider = MovieApiProvider();
   late Future<Map<String, dynamic>> userPreferences;
   final _formKey = GlobalKey<FormState>();
   final List<String> _selectedGenres = [];
@@ -24,6 +26,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   int _selectedDuration = 180;
   bool _adultContent = false;
   late Future<List<Map<String, dynamic>>> _popularDirectors;
+  late Future<List<Map<String, dynamic>>> _popularActors;
   late Future<List<Map<String, dynamic>>> _allGenres;
 
   final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -59,7 +62,8 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
           debugPrint('Error loading user preferences: $error');
         });
 
-    _popularDirectors = _tmdbProvider.getDirectors();
+    _popularDirectors = _movieApiProvider.getDirectors();
+    _popularActors = _movieApiProvider.getActors();
 
     _popularDirectors
         .then((directors) {
@@ -68,7 +72,15 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
         .catchError((error) {
           // debugPrint('Error loading directors: $error');
         });
-    
+
+    _popularActors
+        .then((actors) {
+          // debugPrint('Actors: $actors');
+        })
+        .catchError((error) {
+          // debugPrint('Error loading actors: $error');
+        });
+
     _allGenres = _tmdbProvider.getMovieGenders();
 
     _allGenres
@@ -78,21 +90,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
         .catchError((error) {
           // debugPrint('Error loading genres: $error');
         });
-    
-
   }
-
-  //FIXME - Trocar por API depois
-  // final List<String> _allGenres = [
-  //   'Ação',
-  //   'Comédia',
-  //   'Drama',
-  //   'Ficção Científica',
-  //   'Terror',
-  //   'Romance',
-  //   'Animação',
-  //   'Documentário',
-  // ];
 
   Future<void> _savePreferences() async {
     if (_selectedGenres.isEmpty) {
@@ -153,9 +151,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    return Text(
-                      'Erro ao carregar gêneros: ${snapshot.error}',
-                    );
+                    return Text('Erro ao carregar gêneros: ${snapshot.error}');
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Text('Nenhum gênero encontrado.');
                   }
@@ -163,22 +159,23 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                   final genres = snapshot.data!;
                   return Wrap(
                     spacing: 8,
-                    children: genres.map((genre) {
-                      final genreName = genre['name'] ?? 'Desconhecido';
-                      return FilterChip(
-                        label: Text(genreName),
-                        selected: _selectedGenres.contains(genreName),
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedGenres.add(genreName);
-                            } else {
-                              _selectedGenres.remove(genreName);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
+                    children:
+                        genres.map((genre) {
+                          final genreName = genre['name'] ?? 'Desconhecido';
+                          return FilterChip(
+                            label: Text(genreName),
+                            selected: _selectedGenres.contains(genreName),
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedGenres.add(genreName);
+                                } else {
+                                  _selectedGenres.remove(genreName);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
                   );
                 },
               ),
@@ -217,6 +214,43 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                                   _selectedDirectors.add(directorName);
                                 } else {
                                   _selectedDirectors.remove(directorName);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 24),
+              const Text('Atores favoritos:', style: TextStyle(fontSize: 16)),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _popularActors,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Erro ao carregar atores: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('Nenhum ator encontrado.');
+                  }
+
+                  final actors = snapshot.data!;
+                  return Wrap(
+                    spacing: 8,
+                    children:
+                        actors.map((actor) {
+                          final actorName = actor['name'] ?? 'Desconhecido';
+                          return FilterChip(
+                            label: Text(actorName),
+                            selected: _selectedActors.contains(actorName),
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedActors.add(actorName);
+                                } else {
+                                  _selectedActors.remove(actorName);
                                 }
                               });
                             },

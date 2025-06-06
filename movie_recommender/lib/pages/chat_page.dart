@@ -4,8 +4,8 @@ import 'package:movie_recommender/providers/gemini_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
-
-import 'package:intl/intl.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -20,19 +20,45 @@ class _ChatPageState extends State<ChatPage> {
   final userId = FirebaseAuth.instance.currentUser?.uid;
   final user = FirebaseAuth.instance.currentUser;
   final UserService _userService = UserService();
-  late Future<Map<String, dynamic>> userPreferences;
-  final List<Map<String, String>> messages = [];
+  late Future<Map<String, dynamic>> userPreferences;  final List<Map<String, String>> messages = [];
   final _geminiProvider = GeminiProvider();
+  final SpeechToText _speechToText = SpeechToText();
   bool _isLoading = false;
-
+  bool _isListening = false;
+  bool _speechEnabled = false;
   @override
   void initState() {
     super.initState();
     userPreferences = _userService.getUserPreferences();
+    _initSpeech();
 
     _messageController.addListener(() {
       setState(() {});
     });
+  }
+  void _initSpeech() async {
+    try {
+      _speechEnabled = await _speechToText.initialize(
+        onError: (val) {
+          debugPrint('Erro no speech-to-text: $val');
+          setState(() {
+            _isListening = false;
+          });
+        },
+        onStatus: (val) {
+          debugPrint('Status do speech-to-text: $val');
+          if (val == 'done' || val == 'notListening') {
+            setState(() {
+              _isListening = false;
+            });
+          }
+        },
+      );
+      setState(() {});
+    } catch (e) {
+      debugPrint('Erro ao inicializar speech-to-text: $e');
+      _speechEnabled = false;
+    }
   }
 
   void _sendMessage() async {
@@ -62,6 +88,43 @@ class _ChatPageState extends State<ChatPage> {
       });
       debugPrint('Error sending message: $e');
     }
+  }
+
+  void _toggleListening() async {
+    if (_isListening) {
+      _stopListening();
+    } else {
+      _startListening();
+    }
+  }
+  void _startListening() async {
+    if (!_speechEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Speech recognition não está disponível')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isListening = true;
+    });
+
+    await _speechToText.listen(
+      onResult: (result) {
+        setState(() {
+          _messageController.text = result.recognizedWords;
+        });
+      },
+      listenFor: Duration(seconds: 30),
+      pauseFor: Duration(seconds: 3),
+      localeId: 'pt_BR',
+    );
+  }
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {
+      _isListening = false;
+    });
   }
 
   @override
@@ -99,18 +162,15 @@ class _ChatPageState extends State<ChatPage> {
                                   isUser
                                       ? const Color.fromARGB(255, 131, 78, 255)
                                       : Colors.grey[200],
-                              // borderRadius: BorderRadius.circular(15),
                               borderRadius:
                                   isUser
                                       ? BorderRadius.only(
                                         topLeft: Radius.circular(15),
                                         bottomLeft: Radius.circular(15),
                                         topRight: Radius.circular(15),
-                                        // bottomRight: Radius.circular(1),
                                       )
                                       : BorderRadius.only(
                                         topLeft: Radius.circular(15),
-                                        // bottomLeft: Radius.circular(1),
                                         topRight: Radius.circular(15),
                                         bottomRight: Radius.circular(15),
                                       ),
@@ -159,39 +219,55 @@ class _ChatPageState extends State<ChatPage> {
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: TextField(
+                Expanded(                  child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'Digite sua mensagem...',
+                      hintText: _isListening ? 'Ouvindo...' : 'Digite sua mensagem...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: const Color.fromARGB(255, 32, 32, 32),
+                      fillColor: _isListening 
+                          ? const Color.fromARGB(255, 50, 30, 30)
+                          : const Color.fromARGB(255, 32, 32, 32),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 10,
                       ),
+                      prefixIcon: _isListening 
+                          ? Icon(Icons.mic, color: Colors.red)
+                          : null,
                     ),
+                    enabled: !_isListening,
                     onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
-                SizedBox(width: 8),
-                IconButton(
-                  onPressed: _isLoading ? null : _sendMessage,
+                SizedBox(width: 8),                IconButton(
+                  onPressed: _isLoading 
+                      ? null 
+                      : _messageController.text.isEmpty 
+                          ? _toggleListening
+                          : _sendMessage,
                   icon: AnimatedSwitcher(
                     duration: Duration(milliseconds: 200),
                     transitionBuilder:
                         (child, animation) =>
                             ScaleTransition(scale: animation, child: child),
-                    child: Icon(
-                      _messageController.text.isEmpty ? Icons.mic : Icons.send,
-                      key: ValueKey<bool>(_messageController.text.isEmpty)
-                    ),
+                    child: _isListening
+                        ? Icon(
+                            Icons.stop,
+                            key: ValueKey<String>('stop'),
+                            color: Colors.red,
+                          )
+                        : Icon(
+                            _messageController.text.isEmpty ? Icons.mic : Icons.send,
+                            key: ValueKey<String>(_messageController.text.isEmpty ? 'mic' : 'send'),
+                          ),
                   ),
-                  color: const Color.fromARGB(255, 183, 166, 224),
+                  color: _isListening 
+                      ? Colors.red 
+                      : const Color.fromARGB(255, 183, 166, 224),
                 ),
               ],
             ),

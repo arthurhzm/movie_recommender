@@ -11,6 +11,7 @@ class DrawerComponent extends StatefulWidget {
 
 class _DrawerComponentState extends State<DrawerComponent> {
   final _auth = FirebaseAuth.instance;
+  final _user = FirebaseAuth.instance.currentUser;
 
   void _signOut() async {
     await _auth.signOut();
@@ -23,14 +24,18 @@ class _DrawerComponentState extends State<DrawerComponent> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
-            child: Text(
-              'Menu',
-              style: TextStyle(color: Colors.white, fontSize: 24),
+          DrawerHeader(
+            decoration: BoxDecoration(color: Colors.grey[900]),
+            child: Row(
+              children: [
+                Icon(Icons.account_circle, size: 60),
+                Padding(padding: EdgeInsets.only(right: 5)),
+                Text(_user?.displayName ?? ""),
+              ],
             ),
           ),
           ListTile(
@@ -43,7 +48,7 @@ class _DrawerComponentState extends State<DrawerComponent> {
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Perfil'),
-            onTap: (){
+            onTap: () {
               Navigator.pushNamed(context, '/profile');
             },
           ),

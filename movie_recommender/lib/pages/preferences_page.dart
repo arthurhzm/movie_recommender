@@ -18,7 +18,7 @@ final Map<String, String> preferenceEmoji = {
   'favoriteDirectors': '🎬',
   'minReleaseYear': '📅',
   'favoriteGenres': '🎭',
-  'favoriteActors': '⭐',
+  'favoriteActors': '🌟',
 };
 
 class PreferencesPage extends StatefulWidget {
@@ -77,7 +77,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     horizontal: 16,
                   ),
                   child: ListTile(
-                    leading: Text(emoji),
+                    leading: Text(emoji, style: TextStyle(fontSize: 20),),
                     title: Text(
                       title,
                       style: const TextStyle(fontWeight: FontWeight.bold),

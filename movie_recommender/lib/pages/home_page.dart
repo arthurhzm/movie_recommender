@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                       "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
                     ),
                     const SizedBox(height: 15),
-                    Text("Filmes com base em seus gostos"),
+                    Text("Filmes recomendados com base em seus gostos"),
                     // First movie section with spinner while loading
                     SizedBox(
                       height: 180,
@@ -106,7 +106,9 @@ class _HomePageState extends State<HomePage> {
                           } else {
                             final moviesList = snapshot.data!;
                             return ScrollConfiguration(
-                              behavior: ScrollConfiguration.of(context).copyWith(
+                              behavior: ScrollConfiguration.of(
+                                context,
+                              ).copyWith(
                                 scrollbars: true,
                                 dragDevices: {
                                   PointerDeviceKind.touch,
@@ -130,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    Text("Filmes festivos para você"),
+                    Text("Filmes festivos recomendados para você"),
                     // Second movie section with spinner while loading
                     SizedBox(
                       height: 180,
@@ -154,7 +156,9 @@ class _HomePageState extends State<HomePage> {
                           } else {
                             final specialMoviesList = snapshot.data!;
                             return ScrollConfiguration(
-                              behavior: ScrollConfiguration.of(context).copyWith(
+                              behavior: ScrollConfiguration.of(
+                                context,
+                              ).copyWith(
                                 scrollbars: true,
                                 dragDevices: {
                                   PointerDeviceKind.touch,
@@ -177,12 +181,61 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
-                    // Button is always visible immediately
+                    // Premium styled button
                     const SizedBox(height: 15),
-                    StandardButton(
-                      onPressed:
-                          () => Navigator.pushNamed(context, '/recommendations'),
-                      child: const Text('Me recomende filmes'),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.amber.withOpacity(0.4),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(25),
+                          onTap:
+                              () => Navigator.pushNamed(
+                                context,
+                                '/recommendations',
+                              ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 16,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.movie,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Me recomende filmes',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

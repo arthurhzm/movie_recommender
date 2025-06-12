@@ -20,6 +20,7 @@ class GeminiProvider {
     int length, {
     bool special = false,
   }) async {
+    final DateTime now = DateTime.now();
     final favoriteGenres =
         preferences['favoriteGenres']?.join(', ') ?? 'Nenhum';
     final favoriteDirectors =
@@ -32,7 +33,7 @@ class GeminiProvider {
         preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
     final specialMovies =
         special
-            ? '6. Recomende APENAS filmes relacionados a próxima data comemorativa BRASILEIRA após hoje'
+            ? '6. Recomende APENAS filmes FESTIVOS relacionados a próxima data comemorativa ou feriado no Brasil após hoje ($now), (EX: Caso estejamos em dezembro, filmes de natal)'
             : '';
 
     return '''
@@ -85,7 +86,7 @@ class GeminiProvider {
        - Se não houver informação, retorne array vazio
       6. Use apenas caracteres ASCII simples
       7. Não inclua comentários ou texto adicional
-      8. Verifique cuidadosamente a formatação JSON
+      8. Verifique cuidadosamente a formatação JSON, os valores do JSON devem ser em português do Brasil
       9. Nunca use caracteres especiais ou Unicode
 
       Exemplo de JSON válido:
@@ -130,7 +131,12 @@ class GeminiProvider {
     try {
       final response = await _model.generateContent([Content.text(prompt)]);
 
-      final text = response.text ?? 'Não foi possível gerar as recomendações';
+      final text = response.text;
+      if (text == null || text.isEmpty) {
+        debugPrint('Resposta do Gemini está vazia ou null');
+        return [];
+      }
+
       final sanitizedText = _sanitizeJson(text);
       final jsonStartIndex = sanitizedText.indexOf('[');
       final jsonEndIndex = sanitizedText.lastIndexOf(']');
@@ -245,7 +251,6 @@ class GeminiProvider {
   }
 
   Future<List<Map<String, dynamic>>> searchMovies(String query) async {
-
     final prompt = ''' 
         [SISTEMA] - 
         Estamos em um sistema de recomendação de filmes e, neste contexto, o usuário está fazendo uma pesquisa e você é um cinéfilo especialista em recomendar filmes.
@@ -260,10 +265,10 @@ class GeminiProvider {
         - overview
         - why_recommend
         - streaming_services (lista de serviços de streaming onde está disponível no Brasil. Ex: ["Netflix", "Prime Video", "Star+"])
-
+        Fora as chaves JSON, que devem seguir estritamente o padrão imposto, o resto deve ser em português do Brasil
         Limite a 200 caracteres por "why_recommend"
 
-
+        Fora as chaves JSON, que devem seguir estritamente o padrão imposto, o resto deve ser em português do Brasil
       
        [/SISTEMA]
     ''';

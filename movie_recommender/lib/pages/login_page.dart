@@ -22,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _signIn() async {
     try {
+      debugPrint("tentando logar");
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),

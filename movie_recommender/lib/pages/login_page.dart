@@ -22,10 +22,13 @@ class _LoginPageState extends State<LoginPage> {
 
   void _signIn() async {
     try {
+      debugPrint("tentando logar");
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      debugPrint("alo");
 
       final response = await http.post(
         Uri.parse('https://movies-api-production-025d.up.railway.app/login'),
@@ -53,12 +56,12 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No user found for that email!')),
+          const SnackBar(content: Text('Credenciais inválidas!')),
         );
       } else if (e.code == 'wrong-password') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Wrong password provided for that user!'),
+            content: Text('Credenciais inválidas!'),
           ),
         );
       }
@@ -70,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: StandardAppBar(),
+      // appBar: 
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

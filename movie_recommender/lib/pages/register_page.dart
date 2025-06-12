@@ -1,10 +1,10 @@
 import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:movie_recommender/components/standard_button.dart';
-import 'package:movie_recommender/components/standard_appbar.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_recommender/components/standard_button.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -72,7 +72,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: StandardAppBar(),
+      // appBar: StandardAppBar(),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

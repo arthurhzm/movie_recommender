@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/standard_button.dart';
-import 'package:movie_recommender/components/standard_appbar.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -80,7 +79,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: StandardAppBar(),
+      // appBar: StandardAppBar(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

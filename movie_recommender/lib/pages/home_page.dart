@@ -36,6 +36,20 @@ class _HomePageState extends State<HomePage> {
     allMovies = Future.wait([movies, specialMovies]);
   }
 
+  // Helper method to sanitize movie data
+  Map<String, dynamic> sanitizeMovieData(Map<String, dynamic> movie) {
+    // Ensure all string fields have non-null values
+    return {
+      'title': movie['title'] ?? 'Título Desconhecido',
+      'overview': movie['overview'] ?? 'Descrição não disponível',
+      'poster_path': movie['poster_path'] ?? '',
+      'backdrop_path': movie['backdrop_path'] ?? '',
+      'release_date': movie['release_date'] ?? '',
+      'vote_average': movie['vote_average'] ?? 0.0,
+      'id': movie['id']?.toString() ?? '',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                                 physics: const BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 itemBuilder: (context, index) {
-                                  final movie = moviesList[index];
+                                  final movie = sanitizeMovieData(moviesList[index]);
                                   return MovieCardComponent(movie: movie);
                                 },
                               ),
@@ -172,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                                 physics: const BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 itemBuilder: (context, index) {
-                                  final movie = specialMoviesList[index];
+                                  final movie = sanitizeMovieData(specialMoviesList[index]);
                                   return MovieCardComponent(movie: movie);
                                 },
                               ),

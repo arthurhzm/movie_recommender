@@ -3,6 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
+final Map<String, String> preferenceTitles = {
+  'maxDuration': 'Duração Máxima (em minutos)',
+  'acceptAdultContent': 'Aceita Conteúdo Adulto?',
+  'favoriteDirectors': 'Diretores Favoritos',
+  'minReleaseYear': 'Ano de Lançamento Mínimo',
+  'favoriteGenres': 'Gêneros Favoritos',
+  'favoriteActors': 'Atores Favoritos',
+};
+
+final Map<String, String> preferenceEmoji = {
+  'maxDuration': '🕒',
+  'acceptAdultContent': '🔞',
+  'favoriteDirectors': '🎬',
+  'minReleaseYear': '📅',
+  'favoriteGenres': '🎭',
+  'favoriteActors': '⭐',
+};
+
 class PreferencesPage extends StatefulWidget {
   const PreferencesPage({super.key});
 
@@ -39,15 +57,32 @@ class _PreferencesPageState extends State<PreferencesPage> {
               itemCount: preferences.entries.length,
               itemBuilder: (context, index) {
                 final entry = preferences.entries.elementAt(index);
+                final title = preferenceTitles[entry.key] ?? entry.key;
+                final emoji = preferenceEmoji[entry.key] ?? entry.key;
+
+                String formatedText;
+                final value = entry.value;
+
+                if (value is List) {
+                  formatedText = value.join(', ');
+                } else if (value is bool) {
+                  formatedText = value ? 'Sim' : 'Não';
+                } else {
+                  formatedText = value.toString();
+                }
+
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 16,
+                  ),
                   child: ListTile(
-                    leading: const Icon(Icons.star, color: Colors.amber),
+                    leading: Text(emoji),
                     title: Text(
-                      entry.key,
+                      title,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text(entry.value.toString()),
+                    subtitle: Text(formatedText),
                   ),
                 );
               },

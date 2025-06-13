@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? title;
@@ -27,7 +28,11 @@ class StandardAppBar extends StatelessWidget implements PreferredSizeWidget {
               ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.movie_filter),
+                  SvgPicture.asset(
+                    'lib/images/movie_recommender_alt_icon.svg',
+                    width: 45,
+                    height: 45,
+                    ),
                   SizedBox(width: 8),
                   Text(
                     dotenv.env['APP_NAME']!,

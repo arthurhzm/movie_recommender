@@ -6,6 +6,7 @@ import 'package:movie_recommender/providers/gemini_provider.dart';
 import 'package:movie_recommender/services/api_limit_service.dart';
 import 'package:movie_recommender/services/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class RecommendationsPage extends StatefulWidget {
   const RecommendationsPage({super.key});
@@ -125,13 +126,16 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
+    Flushbar(
+      message:
           'Avaliação recebida! Caso queira fornecer mais detalhes e melhorar as recomendações, acesse "Meus filmes" e clique no filme desejado',
-        ),
-      ),
-    );
+      duration: const Duration(seconds: 4),
+      flushbarPosition: FlushbarPosition.TOP, // <- no topo!
+      margin: const EdgeInsets.all(8),
+      borderRadius: BorderRadius.circular(8),
+      backgroundColor: Colors.black87,
+      icon: const Icon(Icons.info_outline, color: Colors.white),
+    ).show(context);
 
     setState(() {
       userSwipes = _userService.getUserSwipes();
@@ -152,7 +156,8 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
   Future<void> _checkFirstTime() async {
     final prefs = await SharedPreferences.getInstance();
-    final hasSeenTutorial = prefs.getBool('has_seen_recommendations_tutorial') ?? false;
+    final hasSeenTutorial =
+        prefs.getBool('has_seen_recommendations_tutorial') ?? false;
 
     if (!hasSeenTutorial) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -669,6 +674,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   }
 
   Widget _buildMovieCard(Map<String, dynamic> movie) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxCardHeight = screenHeight * 0.8; // Limita a altura do card
+
     return GestureDetector(
       onTap: () {
         showDialog(
@@ -678,7 +686,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                 title: Text(movie['title']),
                 content: SingleChildScrollView(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${movie['year']} • ${movie['genres'].join(', ')}'),
@@ -720,14 +727,10 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
         if (_isSwipeInProgress) return;
 
         final velocity = details.velocity.pixelsPerSecond;
-
-        // Check for vertical swipe (super like)
         if (velocity.dy < -_swipeThreshold &&
             velocity.dy.abs() > velocity.dx.abs()) {
           _handleSwipe('super_like');
-        }
-        // Check for horizontal swipes
-        else if (velocity.dx.abs() > _swipeThreshold) {
+        } else if (velocity.dx.abs() > _swipeThreshold) {
           if (velocity.dx > 0) {
             _handleSwipe('like');
           } else {
@@ -738,57 +741,61 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       child: Card(
         margin: const EdgeInsets.all(20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                image:
-                    movie['poster_url'] != null
-                        ? DecorationImage(
-                          image: NetworkImage(movie['poster_url']),
-                          fit: BoxFit.cover,
-                        )
-                        : null,
-                color: Colors.grey.shade200,
-              ),
-              child:
-                  movie['poster_url'] == null
-                      ? const Center(child: Icon(Icons.movie, size: 50))
-                      : null,
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
+        clipBehavior: Clip.antiAlias,
+        child: SizedBox(
+          height: maxCardHeight,
+          child: Stack(
+            children: [
+              Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withAlpha(179)],
+                  image:
+                      movie['poster_url'] != null
+                          ? DecorationImage(
+                            image: NetworkImage(movie['poster_url']),
+                            fit: BoxFit.cover,
+                          )
+                          : null,
+                ),
+                child:
+                    movie['poster_url'] == null
+                        ? const Center(child: Icon(Icons.movie, size: 50))
+                        : null,
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black.withAlpha(179)],
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        movie['title'],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${movie['year']} • ${movie['genres'].join(', ')}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      movie['title'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${movie['year']} • ${movie['genres'].join(', ')}',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

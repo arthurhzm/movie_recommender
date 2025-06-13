@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:movie_recommender/components/standard_button.dart';
-import 'package:movie_recommender/components/standard_appbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:movie_recommender/providers/movie_api_provider.dart';
 import 'dart:convert';
@@ -55,15 +54,13 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Credenciais inválidas!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Credenciais inválidas!')));
       } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Credenciais inválidas!'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Credenciais inválidas!')));
       }
     } catch (e) {
       print('Error: $e');
@@ -73,14 +70,20 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: 
+      // appBar:
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.movie_filter, size: 80),
+              Image.asset(
+                'lib/images/movie_recommender_icon.png',
+                width: 250,
+                height: 250,
+                fit: BoxFit.cover,
+              ),
+              SizedBox(height: 20),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(

@@ -140,7 +140,7 @@ class GeminiProvider {
       final sanitizedText = _sanitizeJson(text);
       final jsonStartIndex = sanitizedText.indexOf('[');
       final jsonEndIndex = sanitizedText.lastIndexOf(']');
-      
+
       if (jsonStartIndex != -1 && jsonEndIndex != -1) {
         final movies =
             List<Map<String, dynamic>>.from(
@@ -152,9 +152,11 @@ class GeminiProvider {
                 'title': movie['title']?.toString() ?? 'Título desconhecido',
                 'year': movie['year']?.toString() ?? 'Ano desconhecido',
                 'genres': List<String>.from(movie['genres'] ?? []),
-                'overview': movie['overview']?.toString() ?? 'Sinopse não disponível',
+                'overview':
+                    movie['overview']?.toString() ?? 'Sinopse não disponível',
                 'why_recommend':
-                    movie['why_recommend']?.toString() ?? 'Recomendação não disponível',
+                    movie['why_recommend']?.toString() ??
+                    'Recomendação não disponível',
                 'streaming_services': List<String>.from(
                   movie['streaming_services'] ?? [],
                 ),
@@ -179,8 +181,20 @@ class GeminiProvider {
         return movies;
       }
       return [];
+    } on GenerativeAIException catch (e) {
+      if (e.message.contains('overloaded') || e.message.contains('503')) {
+        debugPrint('Serviço temporariamente indisponível: ${e.message}');
+        throw Exception(
+          'O serviço está temporariamente sobrecarregado. Tente novamente em alguns instantes.',
+        );
+      }
+      debugPrint('Erro da IA: ${e.message}');
+      throw Exception('Erro no serviço de recomendações. Tente novamente.');
     } catch (e) {
-      throw Exception('Erro na geração: ${e.toString()}');
+      debugPrint('Erro geral na geração: ${e.toString()}');
+      throw Exception(
+        'Não foi possível gerar recomendações no momento. Tente novamente.',
+      );
     }
   }
 

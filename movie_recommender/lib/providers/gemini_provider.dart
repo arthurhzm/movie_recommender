@@ -255,7 +255,7 @@ class GeminiProvider {
         [SISTEMA] - 
         Estamos em um sistema de recomendação de filmes e, neste contexto, o usuário está fazendo uma pesquisa e você é um cinéfilo especialista em recomendar filmes.
         A pesquisa do usuário para encontrar filmes foi: $query
-
+        Pesquise por filmes com o nome passado pelo usuário ou, caso tenha passado o contexto do filme, pesquise pelo contexto.
 
         Retorno esperado:
         Recomende até 10 filmes filmes no formato JSON com:

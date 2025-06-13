@@ -79,8 +79,8 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Image.asset(
                 'lib/images/movie_recommender_icon.png',
-                width: 250,
-                height: 250,
+                width: 200,
+                height: 200,
                 fit: BoxFit.cover,
               ),
               SizedBox(height: 20),

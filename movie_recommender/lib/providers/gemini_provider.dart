@@ -140,9 +140,7 @@ class GeminiProvider {
       final sanitizedText = _sanitizeJson(text);
       final jsonStartIndex = sanitizedText.indexOf('[');
       final jsonEndIndex = sanitizedText.lastIndexOf(']');
-      debugPrint(
-        'JSON: ${sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)}',
-      );
+      
       if (jsonStartIndex != -1 && jsonEndIndex != -1) {
         final movies =
             List<Map<String, dynamic>>.from(
@@ -151,12 +149,12 @@ class GeminiProvider {
               ),
             ).map((movie) {
               return {
-                'title': movie['title'] ?? 'Título desconhecido',
+                'title': movie['title']?.toString() ?? 'Título desconhecido',
                 'year': movie['year']?.toString() ?? 'Ano desconhecido',
                 'genres': List<String>.from(movie['genres'] ?? []),
-                'overview': movie['overview'] ?? 'Sinopse não disponível',
+                'overview': movie['overview']?.toString() ?? 'Sinopse não disponível',
                 'why_recommend':
-                    movie['why_recommend'] ?? 'Recomendação não disponível',
+                    movie['why_recommend']?.toString() ?? 'Recomendação não disponível',
                 'streaming_services': List<String>.from(
                   movie['streaming_services'] ?? [],
                 ),
@@ -166,15 +164,15 @@ class GeminiProvider {
         for (var movie in movies) {
           try {
             final details = await _tmdbProvider.searchMoviesByTitle(
-              movie['title'],
+              movie['title']?.toString() ?? '',
             );
 
             if (details.isNotEmpty) {
-              movie.addAll(details[0]);
+              movie.addAll(details[0].cast<String, Object>());
             }
           } catch (e) {
             debugPrint('Erro ao buscar dados do TMDB: $e');
-            movie['poster_url'] = null;
+            movie['poster_url'] = '';
           }
         }
 
@@ -280,9 +278,9 @@ class GeminiProvider {
       final sanitizedText = _sanitizeJson(text);
       final jsonStartIndex = sanitizedText.indexOf('[');
       final jsonEndIndex = sanitizedText.lastIndexOf(']');
-      debugPrint(
-        'JSON: ${sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)}',
-      );
+      // debugPrint(
+      //   'JSON: ${sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1)}',
+      // );
       if (jsonStartIndex != -1 && jsonEndIndex != -1) {
         final movies =
             List<Map<String, dynamic>>.from(

@@ -34,6 +34,7 @@ class _HomePageState extends State<HomePage> {
     movies = _geminiProvider.getMoviesRecommendations(10);
     specialMovies = _geminiProvider.getMoviesRecommendations(10, special: true);
     allMovies = Future.wait([movies, specialMovies]);
+    debugPrint(allMovies.toString());
   }
 
   // Helper method to sanitize movie data
@@ -44,9 +45,15 @@ class _HomePageState extends State<HomePage> {
       'overview': movie['overview'] ?? 'Descrição não disponível',
       'poster_path': movie['poster_path'] ?? '',
       'backdrop_path': movie['backdrop_path'] ?? '',
-      'release_date': movie['release_date'] ?? '',
+      'release_date': movie['release_date']?.toString() ?? '',
       'vote_average': movie['vote_average'] ?? 0.0,
       'id': movie['id']?.toString() ?? '',
+      'year': movie['year']?.toString() ?? '',
+      'genres': movie['genres'] ?? [],
+      'why_recommend': movie['why_recommend'] ?? '',
+      'streaming_services': movie['streaming_services'] ?? [],
+      'poster_url': movie['poster_url'] ?? '',
+      'backdrop_url': movie['backdrop_url'] ?? '',
     };
   }
 
@@ -136,7 +143,9 @@ class _HomePageState extends State<HomePage> {
                                 physics: const BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 itemBuilder: (context, index) {
-                                  final movie = sanitizeMovieData(moviesList[index]);
+                                  final movie = sanitizeMovieData(
+                                    moviesList[index],
+                                  );
                                   return MovieCardComponent(movie: movie);
                                 },
                               ),
@@ -186,7 +195,9 @@ class _HomePageState extends State<HomePage> {
                                 physics: const BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 itemBuilder: (context, index) {
-                                  final movie = sanitizeMovieData(specialMoviesList[index]);
+                                  final movie = sanitizeMovieData(
+                                    specialMoviesList[index],
+                                  );
                                   return MovieCardComponent(movie: movie);
                                 },
                               ),

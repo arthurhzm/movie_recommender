@@ -97,6 +97,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 15),
                     Text("Filmes recomendados com base em seus gostos"),
+                    SizedBox(height: 8),
                     // First movie section with spinner while loading
                     SizedBox(
                       height: 180,
@@ -136,7 +137,9 @@ class _HomePageState extends State<HomePage> {
                                 physics: const BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 itemBuilder: (context, index) {
-                                  final movie = sanitizeMovieData(moviesList[index]);
+                                  final movie = sanitizeMovieData(
+                                    moviesList[index],
+                                  );
                                   return MovieCardComponent(movie: movie);
                                 },
                               ),
@@ -147,6 +150,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 15),
                     Text("Filmes festivos recomendados para você"),
+                    SizedBox(height: 8),
                     // Second movie section with spinner while loading
                     SizedBox(
                       height: 180,
@@ -186,7 +190,9 @@ class _HomePageState extends State<HomePage> {
                                 physics: const BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 itemBuilder: (context, index) {
-                                  final movie = sanitizeMovieData(specialMoviesList[index]);
+                                  final movie = sanitizeMovieData(
+                                    specialMoviesList[index],
+                                  );
                                   return MovieCardComponent(movie: movie);
                                 },
                               ),
@@ -207,7 +213,12 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color.fromARGB(204, 255, 191, 0).withOpacity(0.4),
+                            color: const Color.fromARGB(
+                              204,
+                              255,
+                              191,
+                              0,
+                            ).withOpacity(0.4),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),

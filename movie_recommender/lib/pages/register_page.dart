@@ -40,9 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Navigator.pushReplacementNamed(context, '/');
 
         await http.post(
-          Uri.parse(
-            'https://movies-api-production-025d.up.railway.app/register',
-          ),
+          Uri.parse('http://localhost:8080/register',),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'Email': _emailController.text.trim(),

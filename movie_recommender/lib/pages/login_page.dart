@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
       debugPrint("alo");
 
       final response = await http.post(
-        Uri.parse('https://movies-api-production-025d.up.railway.app/login'),
+        Uri.parse('http://localhost:8080/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'Email': _emailController.text.trim(),

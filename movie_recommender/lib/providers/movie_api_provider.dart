@@ -17,7 +17,28 @@ class MovieApiProvider {
     }
   }
 
-  final String _baseUrl = "https://movies-api-production-025d.up.railway.app";
+  final String _baseUrl = "http://localhost:8080";
+
+  Future<List<Map<String, dynamic>>> getGenres() async {
+    await _loadApiKey();
+
+    final response = await http.get(
+      Uri.parse("$_baseUrl/genres"),
+      headers: {
+        'Authorization': 'Bearer $_apiKey',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Falha ao carregar gêneros: ${response.statusCode}');
+    }
+
+    final responseData = jsonDecode(response.body);
+
+    final genres = responseData['data'];
+    return List<Map<String, dynamic>>.from(genres);
+  }
 
   Future<List<Map<String, dynamic>>> getDirectors() async {
     await _loadApiKey();

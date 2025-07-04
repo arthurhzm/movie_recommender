@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
 import 'package:movie_recommender/providers/movie_api_provider.dart';
-import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
 class AddPreferencesPage extends StatefulWidget {
@@ -16,7 +15,6 @@ class AddPreferencesPage extends StatefulWidget {
 
 class _AddPreferencesPageState extends State<AddPreferencesPage> {
   final UserService _userService = UserService();
-  final TmdbProvider _tmdbProvider = TmdbProvider();
   final MovieApiProvider _movieApiProvider = MovieApiProvider();
   late Future<Map<String, dynamic>> userPreferences;
   final _formKey = GlobalKey<FormState>();
@@ -26,8 +24,6 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   int _selectedYear = 2000;
   int _selectedDuration = 180;
   bool _adultContent = false;
-  late Future<List<Map<String, dynamic>>> _popularDirectors;
-  late Future<List<Map<String, dynamic>>> _popularActors;
   late Future<List<Map<String, dynamic>>> _allGenres;
   
   // Search controllers and results
@@ -71,9 +67,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
           debugPrint('Error loading user preferences: $error');
         });
 
-    _popularDirectors = _movieApiProvider.getDirectors();
-    _popularActors = _movieApiProvider.getActors();
-    _allGenres = _tmdbProvider.getMovieGenders();
+    _allGenres = _movieApiProvider.getGenres();
   }
 
   @override

@@ -25,12 +25,84 @@ class _MovieCardComponentState extends State<MovieCardComponent> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (movie['poster_url'] != null)
+                      if (movie['poster_url'] != null &&
+                          movie['poster_url'].isNotEmpty)
                         Center(
                           child: Image.network(
                             movie['poster_url'],
                             height: 200,
                             fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                height: 200,
+                                width: double.infinity,
+                                color: Colors.grey[300],
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 200,
+                                width: double.infinity,
+                                color: Colors.grey[300],
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.movie,
+                                      size: 50,
+                                      color: Colors.grey[600],
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Poster não\ndisponível',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      else
+                        Container(
+                          height: 200,
+                          width: double.infinity,
+                          color: Colors.grey[300],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.movie,
+                                size: 50,
+                                color: Colors.grey[600],
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Poster não\ndisponível',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       const SizedBox(height: 12),
@@ -89,12 +161,64 @@ class _MovieCardComponentState extends State<MovieCardComponent> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(5)),
-              child: Image.network(
-                movie['poster_url'],
-                height: 180,
-                width: 120,
-                fit: BoxFit.cover,
-              ),
+              child:
+                  movie['poster_url'] != null && movie['poster_url'].isNotEmpty
+                      ? Image.network(
+                        movie['poster_url'],
+                        height: 180,
+                        width: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 180,
+                            width: 120,
+                            color: Colors.grey[300],
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.movie,
+                                  size: 30,
+                                  color: Colors.grey[600],
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Sem\nPoster',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      )
+                      : Container(
+                        height: 180,
+                        width: 120,
+                        color: Colors.grey[300],
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.movie,
+                              size: 30,
+                              color: Colors.grey[600],
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Sem\nPoster',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
             ),
           ],
         ),

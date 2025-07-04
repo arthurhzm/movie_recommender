@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    Text("Filmes festivos recomendados para você"),
+                    Text("Filmes especiais recomendados para você"),
                     SizedBox(height: 8),
                     // Second movie section with spinner while loading
                     SizedBox(

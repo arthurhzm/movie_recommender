@@ -8,7 +8,7 @@ import 'dart:convert';
 
 class GeminiProvider {
   final _model = GenerativeModel(
-    model: 'gemini-2.5-flash-preview-04-17',
+    model: 'gemini-1.5-flash',
     apiKey: dotenv.env['GEMINI_API_KEY']!,
   );
   final _userService = UserService();
@@ -31,10 +31,7 @@ class GeminiProvider {
     final maxDuration = preferences['maxDuration'] ?? 'Não especificado';
     final acceptAdultContent =
         preferences['acceptAdultContent'] == true ? 'Sim' : 'Não';
-    final specialMovies =
-        special
-            ? '6. Recomende APENAS filmes FESTIVOS relacionados a próxima data comemorativa ou feriado no Brasil após hoje ($now), (EX: Caso estejamos em dezembro, filmes de natal)'
-            : '';
+    final specialMovies = special ? _getSpecialMoviesPrompt(now, length) : '';
 
     return '''
       Você é um cinéfilo especialista em recomendar filmes personalizados. 
@@ -106,11 +103,23 @@ class GeminiProvider {
   }
 
   String _sanitizeJson(String rawJson) {
-    // Remove caracteres não-ASCII e linhas problemáticas
+    // Remove apenas caracteres problemáticos, mas preserva acentos portugueses
     return rawJson
-        .replaceAll(RegExp(r'[^\x00-\x7F]'), '') // Remove caracteres não-ASCII
+        .replaceAll(
+          RegExp(r'[\u0000-\u001F\u007F-\u009F]'),
+          '',
+        ) // Remove caracteres de controle
         .replaceAll(RegExp(r',\s*\}'), '}') // Remove vírgulas finais
-        .replaceAll(RegExp(r',\s*\]'), ']'); // Remove vírgulas finais
+        .replaceAll(RegExp(r',\s*\]'), ']') // Remove vírgulas finais
+        .replaceAll(
+          RegExp(r'[\u201C\u201D]'),
+          '"',
+        ) // Substitui aspas curvas por normais
+        .replaceAll(
+          RegExp(r'[\u2018\u2019]'),
+          "'",
+        ) // Substitui apostrofes curvos
+        .replaceAll('…', '...'); // Substitui reticências Unicode
   }
 
   Future<List<Map<String, dynamic>>> getMoviesRecommendations(
@@ -142,6 +151,7 @@ class GeminiProvider {
       final jsonEndIndex = sanitizedText.lastIndexOf(']');
 
       if (jsonStartIndex != -1 && jsonEndIndex != -1) {
+        print(sanitizedText.substring(jsonStartIndex, jsonEndIndex + 1));
         final movies =
             List<Map<String, dynamic>>.from(
               json.decode(
@@ -339,4 +349,66 @@ class GeminiProvider {
       throw Exception('Erro na geração: ${e.toString()}');
     }
   }
+}
+
+String _getSpecialMoviesPrompt(DateTime now, int length) {
+  final month = now.month;
+  final day = now.day;
+
+  // Define as datas comemorativas do Brasil
+  String occasionContext = '';
+
+  if (month >= 11 && day >= 1) {
+    occasionContext = '''
+    CONTEXTO ESPECIAL - DEZEMBRO/NATAL:
+    Recomende APENAS filmes natalinos, de fim de ano ou familiares apropriados para a época.
+    Exemplos: filmes de Natal, comédia familiar, romance natalino, aventuras familiares.
+    ''';
+  } else if (month == 10) {
+    occasionContext = '''
+    CONTEXTO ESPECIAL - HALLOWEEN:
+    Recomende APENAS filmes de terror, suspense, thriller ou sobrenaturais apropriados para Halloween.
+    Considere o nível de terror baseado nas preferências do usuário.
+    ''';
+  } else if ((month == 2 || month == 6) && day >= 1 && day <= 28) {
+    occasionContext = '''
+    CONTEXTO ESPECIAL - DIA DOS NAMORADOS:
+    Para início de fevereiro: filmes festivos, musicais ou comédias brasileiras.
+    Para meio de fevereiro: filmes românticos, dramas românticos ou comédias românticas.
+    ''';
+  } else if (month == 4 && day >= 15 && day <= 25) {
+    occasionContext = '''
+    CONTEXTO ESPECIAL - PÁSCOA:
+    Recomende filmes familiares, aventuras para toda família, 
+    animações ou filmes com temas de renovação e esperança.
+    ''';
+  } else if (month == 5 && day >= 1 && day <= 15) {
+    occasionContext = '''
+    CONTEXTO ESPECIAL - DIA DAS MÃES:
+    Recomende filmes sobre maternidade, relações familiares,
+    dramas emocionantes sobre mães ou comédias familiares.
+    ''';
+  } else if (month == 8 && day >= 1 && day <= 15) {
+    occasionContext = '''
+    CONTEXTO ESPECIAL - DIA DOS PAIS:
+    Recomende filmes sobre paternidade, relações pai-filho,
+    aventuras familiares ou dramas sobre figura paterna.
+    ''';
+  } else {
+    occasionContext = '''
+    CONTEXTO ESPECIAL - GERAL:
+    Identifique a próxima data comemorativa importante no Brasil e recomende 
+    filmes apropriados para essa ocasião. Considere feriados nacionais, 
+    datas culturais ou sazonais relevantes.
+    ''';
+  }
+
+  return '''
+  $occasionContext
+  
+  IMPORTANTE: 
+  - Todos os $length filmes devem ser relacionados à ocasião especial identificada
+  - Mantenha as preferências do usuário quando possível, mas priorize a temática especial
+  - Explique no "why_recommend" a conexão com a data comemorativa
+  ''';
 }

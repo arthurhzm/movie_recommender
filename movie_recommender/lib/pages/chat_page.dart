@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:movie_recommender/providers/gemini_provider.dart';
-import 'package:movie_recommender/services/user_service.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
+import 'package:movie_recommender/providers/gemini_provider.dart';
+import 'package:movie_recommender/services/user_service.dart';
+import 'package:movie_recommender/utils/gemini_models.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -23,7 +23,7 @@ class _ChatPageState extends State<ChatPage> {
   final UserService _userService = UserService();
   late Future<Map<String, dynamic>> userPreferences;
   final List<Map<String, String>> messages = [];
-  final _geminiProvider = GeminiProvider();
+  final _geminiProvider = GeminiProvider(model: GeminiModels.gemini_2_5_flash);
   final SpeechToText _speechToText = SpeechToText();
   bool _isLoading = false;
   bool _isListening = false;

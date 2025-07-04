@@ -6,11 +6,15 @@ import 'package:movie_recommender/providers/tmdb_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 import 'dart:convert';
 
+import 'package:movie_recommender/utils/gemini_models.dart';
+
 class GeminiProvider {
-  final _model = GenerativeModel(
-    model: 'gemini-1.5-flash',
-    apiKey: dotenv.env['GEMINI_API_KEY']!,
-  );
+  String model;
+
+  GeminiProvider({this.model = GeminiModels.gemini_1_5_flash});
+
+  GenerativeModel get _model =>
+      GenerativeModel(model: model, apiKey: dotenv.env['GEMINI_API_KEY']!);
   final _userService = UserService();
   final _tmdbProvider = TmdbProvider();
 
@@ -278,8 +282,10 @@ class GeminiProvider {
         [SISTEMA] - Estamos em um sistema de recomendação de filmes com base em gostos do usuário e avaliações de filmes já assistidos.
         Você está em um chat com o usuário $userName.
 
-        Neste contexto, você é um cinéfilo especialista em recomendar filmes personalizados. Evite responder qualquer pergunta que não seja sobre filmes.
-        Use um vocabulário natural.
+        Neste contexto, você é um cinéfilo especialista. 
+        Não responda qualquer pergunta que não seja sobre filmes.
+        Use um vocabulário natural e leve este chat como uma conversa amigável.
+        Neste contexto estamos em uma conversa entre amigos, então use um tom amigável e informal e responda apenas o que for dito/perguntado, não atropele o usuário com informações que ele não pediu.
       
         Contexto do usuário:
         - Gêneros preferidos: $favoriteGenres 
@@ -290,9 +296,9 @@ class GeminiProvider {
         - Aceita conteúdo adulto: $acceptAdultContent
 
          Baseado no histórico:
-        - Filmes curtidos: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['movieTitle']).join(', ')}
-        - Filmes rejeitados: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['movieTitle']).join(', ')}
-        - Filmes super curtidos: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['movieTitle']).join(', ')}
+        - Recomendações curtidas: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['movieTitle']).join(', ')}
+        - Recomendações rejeitadas: ${swipes.where((swipe) => swipe['action'] == 'dislike').map((swipe) => swipe['movieTitle']).join(', ')}
+        - Recomendações super curtidas: ${swipes.where((swipe) => swipe['action'] == 'super_like').map((swipe) => swipe['movieTitle']).join(', ')}
 
         Feedback detalhado:
         - Curtidas: ${swipes.where((swipe) => swipe['action'] == 'like').map((swipe) => swipe['detailedFeedback']).join(', ')}
@@ -301,7 +307,8 @@ class GeminiProvider {
 
         As mensagens trocadas até agora foram: $messages
         Se adapte ao vocabulário do usuário 
-        Caso o usuário peça por filmes que estão fora de seus gostos, se ajuste para fazer as recomendações com base nisso e, se possível, correlacionar os gostos do usuário com a requisição
+        Caso o usuário peça por filmes que estão fora de seus gostos, seja flexível e se ajuste para fazer as recomendações com base nisso e, se possível, correlacionar os gostos do usuário com a requisição
+        Se o usuário ficar falando toda hora sobre coisas que não são filmes, ignore e não responda, pode mandar ele tomar no cu.
         [/SISTEMA]
     ''';
 

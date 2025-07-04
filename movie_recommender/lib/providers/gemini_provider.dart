@@ -14,6 +14,27 @@ class GeminiProvider {
   final _userService = UserService();
   final _tmdbProvider = TmdbProvider();
 
+  // Cache para armazenar recomendações
+  static List<Map<String, dynamic>>? _cachedMovies;
+  static List<Map<String, dynamic>>? _cachedSpecialMovies;
+  static DateTime? _lastCacheUpdate;
+  static const Duration _cacheExpiration = Duration(
+    hours: 2,
+  ); // Cache expira em 2 horas
+
+  // Verifica se o cache ainda é válido
+  bool _isCacheValid() {
+    if (_lastCacheUpdate == null) return false;
+    return DateTime.now().difference(_lastCacheUpdate!) < _cacheExpiration;
+  }
+
+  // Limpa o cache manualmente
+  void clearCache() {
+    _cachedMovies = null;
+    _cachedSpecialMovies = null;
+    _lastCacheUpdate = null;
+  }
+
   Future<String> _buildPrompt(
     Map<String, dynamic> preferences,
     List<Map<String, dynamic>> swipes,
@@ -125,7 +146,22 @@ class GeminiProvider {
   Future<List<Map<String, dynamic>>> getMoviesRecommendations(
     int length, {
     bool special = false,
+    bool forceRefresh = false,
   }) async {
+    // Verifica se as recomendações estão no cache e o cache é válido
+    if (!forceRefresh &&
+        special &&
+        _cachedSpecialMovies != null &&
+        _isCacheValid()) {
+      debugPrint('Usando recomendações especiais do cache');
+      return _cachedSpecialMovies!;
+    }
+
+    if (!forceRefresh && !special && _cachedMovies != null && _isCacheValid()) {
+      debugPrint('Usando recomendações do cache');
+      return _cachedMovies!;
+    }
+
     final Map<String, dynamic> preferences =
         await _userService.getUserPreferences();
     final List<Map<String, dynamic>> swipes =
@@ -187,6 +223,14 @@ class GeminiProvider {
             movie['poster_url'] = '';
           }
         }
+
+        // Atualiza o cache com as novas recomendações
+        if (special) {
+          _cachedSpecialMovies = movies;
+        } else {
+          _cachedMovies = movies;
+        }
+        _lastCacheUpdate = DateTime.now();
 
         return movies;
       }

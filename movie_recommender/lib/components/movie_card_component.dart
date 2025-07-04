@@ -38,17 +38,44 @@ class _MovieCardComponentState extends State<MovieCardComponent> {
                                 height: 200,
                                 width: double.infinity,
                                 color: Colors.grey[300],
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
-                                  ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.local_movies,
+                                      size: 40,
+                                      color: Colors.grey[600],
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Preparando o show...',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    SizedBox(
+                                      width: 100,
+                                      child: LinearProgressIndicator(
+                                        value:
+                                            loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                        backgroundColor: Colors.grey[400],
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.orange,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             },

@@ -26,14 +26,43 @@ class _HomePageState extends State<HomePage> {
   late Future<List<Map<String, dynamic>>> movies;
   late Future<List<Map<String, dynamic>>> specialMovies;
   late Future<List<List<Map<String, dynamic>>>> allMovies;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
     userPreferences = _userService.getUserPreferences();
-    movies = _geminiProvider.getMoviesRecommendations(10);
-    specialMovies = _geminiProvider.getMoviesRecommendations(10, special: true);
+    _loadMovies();
+  }
+
+  void _loadMovies({bool forceRefresh = false}) {
+    if (forceRefresh) {
+      setState(() {
+        _isRefreshing = true;
+      });
+    }
+
+    movies = _geminiProvider.getMoviesRecommendations(
+      10,
+      forceRefresh: forceRefresh,
+    );
+    specialMovies = _geminiProvider.getMoviesRecommendations(
+      10,
+      special: true,
+      forceRefresh: forceRefresh,
+    );
     allMovies = Future.wait([movies, specialMovies]);
+
+    if (forceRefresh) {
+      allMovies.then((_) {
+        if (mounted) {
+          setState(() {
+            _isRefreshing = false;
+          });
+        }
+      });
+    }
+
     debugPrint(allMovies.toString());
   }
 
@@ -71,6 +100,16 @@ class _HomePageState extends State<HomePage> {
       appBar: StandardAppBar(
         actions: [
           IconButton(
+            icon: Icon(_isRefreshing ? Icons.hourglass_empty : Icons.refresh),
+            onPressed:
+                _isRefreshing
+                    ? null
+                    : () {
+                      _loadMovies(forceRefresh: true);
+                    },
+            tooltip: 'Atualizar recomendações',
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
@@ -94,8 +133,9 @@ class _HomePageState extends State<HomePage> {
             return const Center(child: Text('Redirecting...'));
           } else {
             // Main content loads immediately
-            return Expanded(
-              child: Center(
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
@@ -113,8 +153,36 @@ class _HomePageState extends State<HomePage> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.movie_creation,
+                                    size: 40,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    "Procurando os melhores filmes...",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  SizedBox(
+                                    width: 120,
+                                    child: LinearProgressIndicator(
+                                      backgroundColor: Colors.grey[300],
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
                           } else if (snapshot.hasError) {
                             return Center(
@@ -166,8 +234,36 @@ class _HomePageState extends State<HomePage> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.movie_filter,
+                                    size: 40,
+                                    color: Colors.orange,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    "Preparando filmes especiais...",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  SizedBox(
+                                    width: 120,
+                                    child: LinearProgressIndicator(
+                                      backgroundColor: Colors.grey[300],
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.orange,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
                           } else if (snapshot.hasError) {
                             return Center(

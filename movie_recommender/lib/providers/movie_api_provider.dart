@@ -19,6 +19,14 @@ class MovieApiProvider {
 
   final String _baseUrl = "http://localhost:8080";
 
+  Future<void> createUser(String email, String password) async {
+    await http.post(
+      Uri.parse("$_baseUrl/register"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+  }
+
   Future<List<Map<String, dynamic>>> getGenres() async {
     await _loadApiKey();
 

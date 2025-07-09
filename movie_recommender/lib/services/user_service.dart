@@ -1,9 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:movie_recommender/models/user_model.dart';
 
 class UserService {
   final FirebaseFirestore _db;
   UserService({FirebaseFirestore? db}) : _db = db ?? FirebaseFirestore.instance;
+
+  Future createUser(UserModel user) async {
+    try {
+      await _db.collection('users').doc(user.uid).set({
+        'name': user.name,
+        'followingCount': 0,
+        'followersCount': 0,
+      });
+    } catch (e) {
+      print('Error creating user: $e');
+    }
+  }
 
   Future<Map<String, dynamic>> getUserPreferences() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;

@@ -1,7 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:movie_recommender/models/api_limit_model.dart';
 
 class ApiUsageService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> createUserApiUsage(userId) async {
+    await FirebaseFirestore.instance.collection('api_usage').add({
+      "userId": userId,
+      "lastRequest": null,
+      "minuteCount": 0,
+      "dailyCount": 0,
+      "lastReset": DateTime.now(),
+    });
+  }
 
   Future<Map<String, Object>> canMakeRequest(String userId) async {
     final docRef = _firestore.collection('api_usage').doc(userId);

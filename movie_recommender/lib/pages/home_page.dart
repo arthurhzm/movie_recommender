@@ -138,14 +138,23 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      "${horarioAtual()} ${user?.displayName ?? ""}, vamos escolher um filme para assistir?",
+                    // const SizedBox(height: 20),
+                    // Text('
+                    //   "${horarioAtual()} ${use'r?.displayName ?? ""}, vamos escolher um filme para assistir?",
+                    // ),
+                    // const SizedBox(height: 15),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Com base nas suas preferências",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
                     ),
-                    const SizedBox(height: 15),
-                    Text("Filmes recomendados com base em seus gostos"),
                     SizedBox(height: 8),
-                    // First movie section with spinner while loading
                     SizedBox(
                       height: 180,
                       child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -224,7 +233,17 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    Text("Filmes especiais recomendados para você"),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Filmes especiais para você",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
                     SizedBox(height: 8),
                     // Second movie section with spinner while loading
                     SizedBox(

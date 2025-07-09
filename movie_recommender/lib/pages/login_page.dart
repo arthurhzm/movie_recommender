@@ -1,11 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/standard_button.dart';
-import 'package:http/http.dart' as http;
 import 'package:movie_recommender/providers/movie_api_provider.dart';
-import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,34 +18,17 @@ class _LoginPageState extends State<LoginPage> {
   void _signIn() async {
     try {
       debugPrint("tentando logar");
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
       debugPrint("alo");
 
-      final response = await http.post(
-        Uri.parse('http://localhost:8080/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'Email': _emailController.text.trim(),
-          'Password': _passwordController.text.trim(),
-        }),
+      await _movieApiProvider.signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
-
-      // deu certo kk
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final token = responseData['data']['token'];
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('movie_api_token', token);
-      } else if (response.statusCode == 400) {
-        await _movieApiProvider.updateApiPassword(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
-      }
 
       Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {

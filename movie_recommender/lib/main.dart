@@ -8,7 +8,7 @@ import 'package:movie_recommender/pages/preferences_page.dart';
 import 'package:movie_recommender/pages/profile_page.dart';
 import 'package:movie_recommender/pages/recommendations_page.dart';
 import 'package:movie_recommender/pages/register_page.dart';
-import 'package:movie_recommender/pages/search_movie_page.dart';
+import 'package:movie_recommender/pages/search_page.dart';
 import 'package:movie_recommender/pages/user_movies_page.dart';
 import 'package:movie_recommender/pages/chat_page.dart';
 import 'firebase_options.dart';

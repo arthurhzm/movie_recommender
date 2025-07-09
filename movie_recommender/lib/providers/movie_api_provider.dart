@@ -27,6 +27,23 @@ class MovieApiProvider {
     );
   }
 
+  Future<void> signIn(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'Email': email, 'Password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final token = responseData['data']['token'];
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('movie_api_token', token);
+    } else if (response.statusCode == 400) {
+      await updateApiPassword(email, password);
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getGenres() async {
     await _loadApiKey();
 

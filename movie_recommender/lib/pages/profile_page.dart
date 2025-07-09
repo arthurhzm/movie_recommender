@@ -4,6 +4,8 @@ import 'package:movie_recommender/components/drawer_component.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:movie_recommender/models/user_model.dart';
+import 'package:movie_recommender/services/user_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,6 +16,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _auth = FirebaseAuth.instance;
+  final UserService _userService = UserService();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -50,6 +53,12 @@ class _ProfilePageState extends State<ProfilePage> {
       if (_nameController.text.isNotEmpty &&
           _nameController.text != _currentUser!.displayName) {
         await _currentUser!.updateDisplayName(_nameController.text);
+        UserModel userModel = UserModel(
+          uid: _currentUser!.uid,
+          name: _nameController.text,
+          photoUrl: _currentUser!.photoURL,
+        );
+        await _userService.updateUser(userModel);
       }
 
       // Update email
@@ -127,6 +136,13 @@ class _ProfilePageState extends State<ProfilePage> {
       // Atualiza o perfil do usuário
       await user.updatePhotoURL(downloadURL);
       await user.reload(); // Atualiza o estado do usuário
+
+      UserModel userModel = UserModel(
+        uid: _currentUser!.uid,
+        name: _currentUser!.displayName ?? '',
+        photoUrl: _currentUser!.photoURL,
+      );
+      await _userService.updateUser(userModel);
 
       setState(() {
         _currentUser = FirebaseAuth.instance.currentUser; // Atualiza o widget

@@ -18,6 +18,43 @@ class UserService {
     }
   }
 
+  Future<void> updateUser(UserModel user) async {
+    try {
+      await _db.collection('users').doc(user.uid).update({
+        'name': user.name,
+        'photoUrl': user.photoUrl,
+      });
+    } catch (e) {
+      print('Error updating user: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getUsersByName(String name) async {
+    try {
+      final snapshot =
+          await _db
+              .collection('users')
+              .where('name', isGreaterThanOrEqualTo: name.toLowerCase())
+              .where('name', isLessThan: '${name.toLowerCase()}\uf8ff')
+              // .where('uid', isNotEqualTo: userId)
+              .get();
+      if (snapshot.docs.isNotEmpty) {
+        print('Found ${snapshot.docs.length} users matching "$name"');
+        return {
+          'users':
+              snapshot.docs
+                  .map((doc) => {'uid': doc.id, ...doc.data()})
+                  .toList(),
+        };
+      } else {
+        return {};
+      }
+    } catch (e) {
+      print('Error getting user by name: $e');
+      return {};
+    }
+  }
+
   Future<Map<String, dynamic>> getUserPreferences() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     try {

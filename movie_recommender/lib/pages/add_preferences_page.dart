@@ -25,9 +25,10 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   int _selectedDuration = 180;
   bool _adultContent = false;
   late Future<List<Map<String, dynamic>>> _allGenres;
-  
+
   // Search controllers and results
-  final TextEditingController _directorSearchController = TextEditingController();
+  final TextEditingController _directorSearchController =
+      TextEditingController();
   final TextEditingController _actorSearchController = TextEditingController();
   List<Map<String, dynamic>> _directorSearchResults = [];
   List<Map<String, dynamic>> _actorSearchResults = [];
@@ -93,10 +94,15 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
     try {
       final directors = await _movieApiProvider.getDirectors();
       setState(() {
-        _directorSearchResults = directors
-            .where((director) => 
-                director['name'].toString().toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        _directorSearchResults =
+            directors
+                .where(
+                  (director) => director['name']
+                      .toString()
+                      .toLowerCase()
+                      .contains(query.toLowerCase()),
+                )
+                .toList();
         _isSearchingDirectors = false;
       });
     } catch (e) {
@@ -124,10 +130,14 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
     try {
       final actors = await _movieApiProvider.getActors();
       setState(() {
-        _actorSearchResults = actors
-            .where((actor) => 
-                actor['name'].toString().toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        _actorSearchResults =
+            actors
+                .where(
+                  (actor) => actor['name'].toString().toLowerCase().contains(
+                    query.toLowerCase(),
+                  ),
+                )
+                .toList();
         _isSearchingActors = false;
       });
     } catch (e) {
@@ -232,8 +242,12 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
     );
   }
 
-  Widget _buildChipList(List<Map<String, dynamic>> items, List<String> selectedItems, 
-      Function(String, bool) onSelected, String nameKey) {
+  Widget _buildChipList(
+    List<Map<String, dynamic>> items,
+    List<String> selectedItems,
+    Function(String, bool) onSelected,
+    String nameKey,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -244,33 +258,42 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
-        children: items.map((item) {
-          final name = item[nameKey] ?? 'Desconhecido';
-          final isSelected = selectedItems.contains(name);
-          
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            child: FilterChip(
-              label: Text(name),
-              selected: isSelected,
-              showCheckmark: false,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[800],
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-              selectedColor: const Color(0xFF667eea),
-              backgroundColor: isSelected ? const Color(0xFF667eea) : Colors.white,
-              shape: StadiumBorder(
-                side: BorderSide(
-                  color: isSelected ? const Color(0xFF667eea) : Colors.grey.shade300,
+        children:
+            items.map((item) {
+              final name = item[nameKey] ?? 'Desconhecido';
+              final isSelected = selectedItems.contains(name);
+
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                child: FilterChip(
+                  label: Text(name),
+                  selected: isSelected,
+                  showCheckmark: false,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : Colors.grey[800],
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  selectedColor: const Color(0xFF667eea),
+                  backgroundColor:
+                      isSelected ? const Color(0xFF667eea) : Colors.white,
+                  shape: StadiumBorder(
+                    side: BorderSide(
+                      color:
+                          isSelected
+                              ? const Color(0xFF667eea)
+                              : Colors.grey.shade300,
+                    ),
+                  ),
+                  elevation: isSelected ? 4 : 1,
+                  shadowColor:
+                      isSelected
+                          ? const Color(0xFF667eea).withOpacity(0.4)
+                          : Colors.transparent,
+                  onSelected: (selected) => onSelected(name, selected),
                 ),
-              ),
-              elevation: isSelected ? 4 : 1,
-              shadowColor: isSelected ? const Color(0xFF667eea).withOpacity(0.4) : Colors.transparent,
-              onSelected: (selected) => onSelected(name, selected),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -282,7 +305,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
     bool isSearching,
     List<Map<String, dynamic>> searchResults,
     List<String> selectedItems,
-    Function(String) onItemSelected
+    Function(String) onItemSelected,
   ) {
     return Column(
       children: [
@@ -301,16 +324,19 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
               hintStyle: TextStyle(color: Colors.grey[400]),
               border: InputBorder.none,
               prefixIcon: const Icon(Icons.search, color: Color(0xFF667eea)),
-              suffixIcon: isSearching
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF764ba2)),
-                      ),
-                    )
-                  : null,
+              suffixIcon:
+                  isSearching
+                      ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF764ba2),
+                          ),
+                        ),
+                      )
+                      : null,
             ),
             onChanged: onSearch,
           ),
@@ -366,19 +392,20 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: selectedItems.map((name) {
-                    return Chip(
-                      label: Text(name),
-                      backgroundColor: const Color(0xFF667eea),
-                      labelStyle: const TextStyle(color: Colors.white),
-                      deleteIconColor: Colors.white,
-                      onDeleted: () {
-                        setState(() {
-                          selectedItems.remove(name);
-                        });
-                      },
-                    );
-                  }).toList(),
+                  children:
+                      selectedItems.map((name) {
+                        return Chip(
+                          label: Text(name),
+                          backgroundColor: const Color(0xFF667eea),
+                          labelStyle: const TextStyle(color: Colors.white),
+                          deleteIconColor: Colors.white,
+                          onDeleted: () {
+                            setState(() {
+                              selectedItems.remove(name);
+                            });
+                          },
+                        );
+                      }).toList(),
                 ),
               ],
             ),
@@ -390,9 +417,10 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: DrawerComponent(),
+      drawer: _selectedGenres.isNotEmpty ? DrawerComponent() : null,
       appBar: StandardAppBar(
-        title: const Text('Suas Preferências', 
+        title: const Text(
+          'Suas Preferências',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -432,7 +460,11 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.movie_filter, color: Colors.white, size: 48),
+                      const Icon(
+                        Icons.movie_filter,
+                        color: Colors.white,
+                        size: 48,
+                      ),
                       const SizedBox(height: 12),
                       const Text(
                         'Personalize suas experiências',
@@ -455,7 +487,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
 
                 // Genres section
@@ -466,25 +498,25 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return _buildLoadingIndicator();
                     } else if (snapshot.hasError) {
-                      return Text('Erro ao carregar gêneros: ${snapshot.error}');
+                      return Text(
+                        'Erro ao carregar gêneros: ${snapshot.error}',
+                      );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Text('Nenhum gênero encontrado.');
                     }
 
-                    return _buildChipList(
-                      snapshot.data!,
-                      _selectedGenres,
-                      (name, selected) {
-                        setState(() {
-                          if (selected) {
-                            _selectedGenres.add(name);
-                          } else {
-                            _selectedGenres.remove(name);
-                          }
-                        });
-                      },
-                      'name',
-                    );
+                    return _buildChipList(snapshot.data!, _selectedGenres, (
+                      name,
+                      selected,
+                    ) {
+                      setState(() {
+                        if (selected) {
+                          _selectedGenres.add(name);
+                        } else {
+                          _selectedGenres.remove(name);
+                        }
+                      });
+                    }, 'name');
                   },
                 ),
 
@@ -504,7 +536,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                       }
                       _directorSearchResults = [];
                     });
-                  }
+                  },
                 ),
 
                 // Actors section
@@ -523,11 +555,14 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                       }
                       _actorSearchResults = [];
                     });
-                  }
+                  },
                 ),
 
                 // Year section
-                _buildSectionTitle('Ano mínimo de lançamento', Icons.date_range),
+                _buildSectionTitle(
+                  'Ano mínimo de lançamento',
+                  Icons.date_range,
+                ),
                 Card(
                   elevation: 4,
                   shadowColor: Colors.grey.withOpacity(0.2),
@@ -553,7 +588,9 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                             inactiveTrackColor: Colors.grey.shade300,
                             thumbColor: const Color(0xFF764ba2),
                             trackHeight: 4,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                            thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 8,
+                            ),
                           ),
                           child: Slider(
                             value: _selectedYear.toDouble(),
@@ -600,7 +637,9 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                             inactiveTrackColor: Colors.grey.shade300,
                             thumbColor: const Color(0xFF764ba2),
                             trackHeight: 4,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                            thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 8,
+                            ),
                           ),
                           child: Slider(
                             value: _selectedDuration.toDouble(),
@@ -636,7 +675,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: const Text(
-                        'Mostrar filmes com conteúdo classificado para maiores de 18 anos'
+                        'Mostrar filmes com conteúdo classificado para maiores de 18 anos',
                       ),
                       value: _adultContent,
                       activeColor: const Color(0xFF764ba2),
@@ -650,7 +689,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                 ),
 
                 const SizedBox(height: 40),
-                
+
                 // Save button
                 Container(
                   width: double.infinity,
@@ -697,7 +736,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 40),
               ],
             ),

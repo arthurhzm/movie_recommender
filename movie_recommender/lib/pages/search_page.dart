@@ -32,9 +32,18 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
                 : _userService
                     .getUsersByName(arguments)
                     .then(
-                      (result) =>
-                          (result['users'] as List? ?? [])
-                              .cast<Map<String, dynamic>>(),
+                      (userModels) =>
+                          userModels
+                              .map(
+                                (user) => {
+                                  'uid': user.uid,
+                                  'name': user.name,
+                                  'photoUrl': user.photoUrl,
+                                  'followingCount': user.followingCount,
+                                  'followersCount': user.followersCount,
+                                },
+                              )
+                              .toList(),
                     );
         _hasSearched = true;
       });
@@ -99,6 +108,9 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
                               selected
                                   ? SearchFilters.filmes
                                   : SearchFilters.people;
+                          searchResults = _geminiProvider.searchMovies(
+                            _searchQuery,
+                          );
                         });
                       },
                     ),
@@ -113,6 +125,24 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
                               selected
                                   ? SearchFilters.people
                                   : SearchFilters.filmes;
+                          searchResults = _userService
+                              .getUsersByName(_searchQuery)
+                              .then(
+                                (userModels) =>
+                                    userModels
+                                        .map(
+                                          (user) => {
+                                            'uid': user.uid,
+                                            'name': user.name,
+                                            'photoUrl': user.photoUrl,
+                                            'followingCount':
+                                                user.followingCount,
+                                            'followersCount':
+                                                user.followersCount,
+                                          },
+                                        )
+                                        .toList(),
+                              );
                         });
                       },
                     ),
@@ -140,8 +170,10 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                const Text(
-                                  '🍿 Procurando filmes incríveis...',
+                                Text(
+                                  selectedFilter == SearchFilters.filmes
+                                      ? '🍿 Procurando filmes incríveis...'
+                                      : '👥 Procurando pessoas...',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -154,8 +186,10 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
                                   builder: (context, value, child) {
                                     return Opacity(
                                       opacity: (value * 2) % 1,
-                                      child: const Text(
-                                        '🎬 Analisando catálogos...',
+                                      child: Text(
+                                        selectedFilter == SearchFilters.filmes
+                                            ? '🎬 Analisando catálogos...'
+                                            : '🔍 Buscando usuários...',
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey,
@@ -364,11 +398,10 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
             leading: CircleAvatar(
               backgroundColor: Colors.red[400],
               child:
-                  user['profilePicture'] != null &&
-                          user['profilePicture'].isNotEmpty
+                  user['photoUrl'] != null && user['photoUrl'].isNotEmpty
                       ? ClipOval(
                         child: Image.network(
-                          user['profilePicture'],
+                          user['photoUrl'],
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
@@ -417,83 +450,7 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
               },
             ),
             onTap: () {
-              // Aqui você pode navegar para o perfil do usuário
-              showDialog(
-                context: context,
-                builder:
-                    (ctx) => AlertDialog(
-                      title: Text(user['name'] ?? 'Perfil'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Colors.red[400],
-                            child:
-                                user['profilePicture'] != null &&
-                                        user['profilePicture'].isNotEmpty
-                                    ? ClipOval(
-                                      child: Image.network(
-                                        user['profilePicture'],
-                                        width: 80,
-                                        height: 80,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (_, __, ___) => Icon(
-                                              Icons.person,
-                                              color: Colors.white,
-                                              size: 40,
-                                            ),
-                                      ),
-                                    )
-                                    : Icon(
-                                      Icons.person,
-                                      color: Colors.white,
-                                      size: 40,
-                                    ),
-                          ),
-                          const SizedBox(height: 16),
-                          if (user['email'] != null)
-                            Text(
-                              user['email'],
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
-                          if (user['bio'] != null &&
-                              user['bio'].isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            const Text(
-                              'Bio:',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(user['bio']),
-                          ],
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          child: const Text('Fechar'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(ctx).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Seguindo ${user['name']}'),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                          child: const Text('Seguir'),
-                        ),
-                      ],
-                    ),
-              );
+              
             },
           ),
         );

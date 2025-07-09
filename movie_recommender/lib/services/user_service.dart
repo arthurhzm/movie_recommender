@@ -29,7 +29,7 @@ class UserService {
     }
   }
 
-  Future<Map<String, dynamic>> getUsersByName(String name) async {
+  Future<List<UserModel>> getUsersByName(String name) async {
     try {
       final snapshot =
           await _db
@@ -40,18 +40,22 @@ class UserService {
               .get();
       if (snapshot.docs.isNotEmpty) {
         print('Found ${snapshot.docs.length} users matching "$name"');
-        return {
-          'users':
-              snapshot.docs
-                  .map((doc) => {'uid': doc.id, ...doc.data()})
-                  .toList(),
-        };
+        return snapshot.docs.map((doc) {
+          final data = doc.data();
+          return UserModel(
+            uid: doc.id,
+            name: data['name'] ?? '',
+            photoUrl: data['photoUrl'],
+            followingCount: data['followingCount'] ?? 0,
+            followersCount: data['followersCount'] ?? 0,
+          );
+        }).toList();
       } else {
-        return {};
+        return [];
       }
     } catch (e) {
       print('Error getting user by name: $e');
-      return {};
+      return [];
     }
   }
 

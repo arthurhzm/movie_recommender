@@ -453,7 +453,7 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
               // Navegar para a página de perfil do usuário
               Navigator.pushNamed(
                 context,
-                Routes.profile,
+                Routes.settings,
                 arguments: user['uid'],
               );
             },

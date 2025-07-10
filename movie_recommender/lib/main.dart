@@ -5,7 +5,7 @@ import 'package:movie_recommender/pages/forgot_password_page.dart';
 import 'package:movie_recommender/pages/home_page.dart';
 import 'package:movie_recommender/pages/login_page.dart';
 import 'package:movie_recommender/pages/preferences_page.dart';
-import 'package:movie_recommender/pages/profile_page.dart';
+import 'package:movie_recommender/pages/settings_page.dart';
 import 'package:movie_recommender/pages/recommendations_page.dart';
 import 'package:movie_recommender/pages/register_page.dart';
 import 'package:movie_recommender/pages/search_page.dart';
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/forgot-password': (context) => const ForgotPasswordPage(),
         '/home': (context) => const HomePage(),
-        '/profile': (context) => const ProfilePage(),
+        '/settings': (context) => const SettingsPage(),
         '/preferences': (context) => const PreferencesPage(),
         '/preferences/add': (context) => const AddPreferencesPage(),
         '/recommendations': (context) => const RecommendationsPage(),

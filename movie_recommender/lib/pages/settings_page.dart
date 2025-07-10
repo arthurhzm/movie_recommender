@@ -7,14 +7,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:movie_recommender/models/user_model.dart';
 import 'package:movie_recommender/services/user_service.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _SettingsPageState extends State<SettingsPage> {
   final _auth = FirebaseAuth.instance;
   final UserService _userService = UserService();
 

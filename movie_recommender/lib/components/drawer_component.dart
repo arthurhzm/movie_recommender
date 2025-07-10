@@ -50,7 +50,7 @@ class _DrawerComponentState extends State<DrawerComponent> {
             leading: const Icon(Icons.person),
             title: const Text('Perfil'),
             onTap: () {
-              Navigator.pushNamed(context, Routes.profile);
+              Navigator.pushNamed(context, Routes.settings);
             },
           ),
           ListTile(
@@ -72,6 +72,13 @@ class _DrawerComponentState extends State<DrawerComponent> {
             title: const Text('Meus Filmes'),
             onTap: () {
               Navigator.pushNamed(context, Routes.userMovies);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Configurações'),
+            onTap: () {
+              Navigator.pushNamed(context, Routes.settings);
             },
           ),
           ListTile(

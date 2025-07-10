@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/standard_button.dart';
 import 'package:movie_recommender/providers/movie_api_provider.dart';
+import 'package:movie_recommender/utils/routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -96,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/forgot-password');
+                  Navigator.pushNamed(context, Routes.forgotPassword);
                 },
                 child: const Text('Esqueci minha senha'),
               ),
@@ -105,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 8),
               StandardButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/register');
+                  Navigator.pushNamed(context, Routes.register);
                 },
                 child: const Text('Criar conta'),
               ),

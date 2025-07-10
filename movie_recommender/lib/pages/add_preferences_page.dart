@@ -5,6 +5,7 @@ import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
 import 'package:movie_recommender/providers/movie_api_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
+import 'package:movie_recommender/utils/routes.dart';
 
 class AddPreferencesPage extends StatefulWidget {
   const AddPreferencesPage({super.key});
@@ -191,7 +192,7 @@ class _AddPreferencesPageState extends State<AddPreferencesPage> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushNamed(context, '/home');
+      Navigator.pushNamed(context, Routes.home);
     }
   }
 

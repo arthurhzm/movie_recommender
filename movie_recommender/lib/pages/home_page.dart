@@ -8,6 +8,7 @@ import 'package:movie_recommender/providers/gemini_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
 import 'package:movie_recommender/components/standard_button.dart';
 import 'package:movie_recommender/components/standard_appbar.dart';
+import 'package:movie_recommender/utils/routes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -91,7 +92,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/chat');
+          Navigator.pushNamed(context, Routes.chat);
         },
         backgroundColor: Colors.green,
         child: Icon(Icons.chat),
@@ -128,7 +129,7 @@ class _HomePageState extends State<HomePage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.pushNamed(context, '/preferences/add');
+              Navigator.pushNamed(context, Routes.addPreferences);
             });
             return const Center(child: Text('Redirecting...'));
           } else {
@@ -353,7 +354,7 @@ class _HomePageState extends State<HomePage> {
                           onTap:
                               () => Navigator.pushNamed(
                                 context,
-                                '/recommendations',
+                                Routes.recommendations,
                               ),
                           child: Container(
                             padding: const EdgeInsets.symmetric(

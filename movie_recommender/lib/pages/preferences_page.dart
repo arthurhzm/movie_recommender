@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/services/user_service.dart';
+import 'package:movie_recommender/utils/routes.dart';
 
 final Map<String, String> preferenceTitles = {
   'maxDuration': 'Duração Máxima (em minutos)',
@@ -99,7 +100,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/preferences/add');
+          Navigator.pushNamed(context, Routes.addPreferences);
         },
         child: const Icon(Icons.add),
         tooltip: 'Adicionar Preferências',

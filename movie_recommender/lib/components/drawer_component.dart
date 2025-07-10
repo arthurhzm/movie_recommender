@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_recommender/pages/login_page.dart';
+import 'package:movie_recommender/utils/routes.dart';
 
 class DrawerComponent extends StatefulWidget {
   const DrawerComponent({super.key});
@@ -42,35 +43,35 @@ class _DrawerComponentState extends State<DrawerComponent> {
             leading: const Icon(Icons.home),
             title: const Text('Início'),
             onTap: () {
-              Navigator.pushNamed(context, '/home');
+              Navigator.pushNamed(context, Routes.home);
             },
           ),
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Perfil'),
             onTap: () {
-              Navigator.pushNamed(context, '/profile');
+              Navigator.pushNamed(context, Routes.profile);
             },
           ),
           ListTile(
             leading: const Icon(Icons.recommend),
             title: const Text('Receber Recomendações'),
             onTap: () {
-              Navigator.pushNamed(context, '/recommendations');
+              Navigator.pushNamed(context, Routes.recommendations);
             },
           ),
           ListTile(
             leading: const Icon(Icons.add_reaction_outlined),
             title: const Text('Minhas Preferências'),
             onTap: () {
-              Navigator.pushNamed(context, '/preferences');
+              Navigator.pushNamed(context, Routes.preferences);
             },
           ),
           ListTile(
             leading: const Icon(Icons.movie),
             title: const Text('Meus Filmes'),
             onTap: () {
-              Navigator.pushNamed(context, '/user_movies');
+              Navigator.pushNamed(context, Routes.userMovies);
             },
           ),
           ListTile(

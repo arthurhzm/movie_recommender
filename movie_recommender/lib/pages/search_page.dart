@@ -4,6 +4,7 @@ import 'package:movie_recommender/components/standard_appbar.dart';
 import 'package:movie_recommender/components/standard_button.dart';
 import 'package:movie_recommender/providers/gemini_provider.dart';
 import 'package:movie_recommender/services/user_service.dart';
+import 'package:movie_recommender/utils/routes.dart';
 import 'package:movie_recommender/utils/search_filters.dart';
 
 class SearchMoviePage extends StatefulWidget {
@@ -440,7 +441,6 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
             trailing: IconButton(
               icon: const Icon(Icons.person_add, color: Colors.blue),
               onPressed: () {
-                // Aqui você pode implementar a lógica para seguir/adicionar o usuário
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Seguindo ${user['name']}'),
@@ -450,7 +450,12 @@ class _SearchMoviePageState extends State<SearchMoviePage> {
               },
             ),
             onTap: () {
-              
+              // Navegar para a página de perfil do usuário
+              Navigator.pushNamed(
+                context,
+                Routes.profile,
+                arguments: user['uid'],
+              );
             },
           ),
         );

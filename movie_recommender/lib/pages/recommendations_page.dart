@@ -5,6 +5,7 @@ import 'package:movie_recommender/components/drawer_component.dart';
 import 'package:movie_recommender/providers/gemini_provider.dart';
 import 'package:movie_recommender/services/api_limit_service.dart';
 import 'package:movie_recommender/services/user_service.dart';
+import 'package:movie_recommender/utils/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:another_flushbar/flushbar.dart';
 
@@ -43,7 +44,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
     final userPreferences = await _userService.getUserPreferences();
     if (userPreferences.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(context, '/preferences/add');
+        Navigator.pushNamed(context, Routes.addPreferences);
       });
       return [];
     }

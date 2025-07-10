@@ -50,7 +50,7 @@ class _DrawerComponentState extends State<DrawerComponent> {
             leading: const Icon(Icons.person),
             title: const Text('Perfil'),
             onTap: () {
-              Navigator.pushNamed(context, Routes.settings);
+              Navigator.pushNamed(context, Routes.profile, arguments: _user!.uid);
             },
           ),
           ListTile(

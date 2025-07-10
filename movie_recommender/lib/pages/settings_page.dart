@@ -166,7 +166,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const DrawerComponent(),
-      appBar: AppBar(title: const Text('Perfil')),
+      appBar: AppBar(title: const Text('Configurações da conta')),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())

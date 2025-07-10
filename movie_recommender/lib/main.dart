@@ -11,6 +11,7 @@ import 'package:movie_recommender/pages/register_page.dart';
 import 'package:movie_recommender/pages/search_page.dart';
 import 'package:movie_recommender/pages/user_movies_page.dart';
 import 'package:movie_recommender/pages/chat_page.dart';
+import 'package:movie_recommender/pages/user_profile_page.dart';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -38,12 +39,13 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/forgot-password': (context) => const ForgotPasswordPage(),
         '/home': (context) => const HomePage(),
-        '/settings': (context) => const SettingsPage(),
+        '/user-profile': (context) => const UserProfilePage(),
         '/preferences': (context) => const PreferencesPage(),
         '/preferences/add': (context) => const AddPreferencesPage(),
         '/recommendations': (context) => const RecommendationsPage(),
         '/user_movies': (context) => const UserMoviesPage(),
         '/chat': (context) => const ChatPage(),
+        '/settings': (context) => const SettingsPage(),
         '/search': (context) => const SearchMoviePage(),
       },
     );
